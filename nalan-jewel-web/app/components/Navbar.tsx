@@ -4,10 +4,10 @@ import { NunitoSans } from '@/public/fonts/fonts';
 
 export default function Navbar() {
 
-  const iconClass = () => 'flex flex-col items-center select-none';
+  const iconClass = () => 'flex flex-col items-center select-none text-[#34758f] hover:scale-110 transition-all hover:text-[#116c96]';
 
   return (
-    <nav className="w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-70% to-[#818E94] to-100% select-none">
+    <nav className="fixed top-0 w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-60% to-[#a5a9aa] to-100% select-none z-50">
       <div className="container mx-auto flex h-full items-center">
         <Link href="/">
           <Image
@@ -36,20 +36,20 @@ export default function Navbar() {
           <div className='flex items-center gap-10'>
             <Link href="/wishlist">
               <div className={iconClass()}>
-                <i className="material-icons text-black">favorite</i>
+                <i className="material-icons">favorite</i>
                 <text style={NunitoSans.style}>Wishlist</text>
               </div>
             </Link>
 
             <Link href="/cart">
               <div className={iconClass()}>
-                <i className="material-icons text-black">shopping_cart</i>
+                <i className="material-icons">shopping_cart</i>
                 <text style={NunitoSans.style}>Cart</text>
               </div>
             </Link>
 
             <div className={iconClass()}>
-              <i className="material-icons text-black">person</i>
+              <i className="material-icons">person</i>
               <text style={NunitoSans.style}>Account</text>
             </div>
           </div>

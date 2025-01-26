@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main>
+      <main className="mt-[8vh]">
         <div className="h-[90vh] w-autooverflow-auto">
 
           {/* The Fold */}
