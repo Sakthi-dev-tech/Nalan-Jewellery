@@ -7,6 +7,8 @@ import Navbar from "./components/Navbar";
 import { useRef } from "react";
 import { Parisienne } from "@/public/fonts/fonts";
 import CarouselForJewels from "./components/CarouselForJewels";
+import { Text } from "@chakra-ui/react";
+import CategoryNavigation from "./components/CategoryNavigationForHome";
 
 export default function Home() {
 
@@ -44,9 +46,12 @@ export default function Home() {
     <>
       <Navbar />
       <main className="mt-[8vh]">
-        <div className="h-[90vh] w-autooverflow-auto">
-
-          {/* The Fold */}
+        {/* Different type of jewels */}
+        <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
+          <CategoryNavigation />
+        </div>
+        {/* The Fold */}
+        <div className="h-[84vh] w-auto overflow-auto relative">
           <Swiper
             loop
             modules={[Autoplay]}
@@ -85,8 +90,7 @@ export default function Home() {
         {/* New Arrivals Section */}
 
         <div className="h-auto w-full flex flex-col items-center justify-center mt-10 select-none p-20">
-          <text style={Parisienne.style} className="text-5xl">New Arrivals</text>
-
+          <Text style={Parisienne.style} className="text-5xl">New Arrivals</Text>
           <CarouselForJewels dataArray={imagesForNewArrivals} />
         </div>
       </main>

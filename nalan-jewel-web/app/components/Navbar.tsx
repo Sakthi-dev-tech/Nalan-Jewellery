@@ -7,7 +7,7 @@ export default function Navbar() {
   const iconClass = () => 'flex flex-col items-center select-none text-[#34758f] hover:scale-110 transition-all hover:text-[#116c96]';
 
   return (
-    <nav className="fixed top-0 w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-60% to-[#a5a9aa] to-100% select-none z-50">
+    <nav className="fixed top-0 w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-40% to-[#a5a9aa] to-100% select-none z-50">
       <div className="container mx-auto flex h-full items-center">
         <Link href="/">
           <Image
@@ -23,7 +23,7 @@ export default function Navbar() {
           <div className="relative w-[30vw]">
             <input
               type="text"
-              className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none" // Add right padding
+              className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none bg-white" // Add right padding
               placeholder="Search for your favourite jewelry..."
             />
             {/* Search icon */}

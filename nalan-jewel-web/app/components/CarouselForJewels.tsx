@@ -37,13 +37,15 @@ export default function CarouselForJewels({ dataArray }: CarouselForJewelsProps)
             >
               {dataArray.map((data, index) => (
                 <SwiperSlide key={index}>
-                  <div className="h-[430px] justify-center items-center flex flex-col">
-                    <img src={data.image} alt="" className="w-[400px] aspect-auto object-fill hover:w-[420px] transition-all duration-500" />
-                  </div>
-                  <div className="flex flex-col items-start justify-center">
-                    <text style={{fontFamily: 'Donegal_One'}} className="text-3xl px-12">{data.jewelName}</text>
-                    <text style={{fontFamily: 'NunitoSans'}} className="text-xl px-12 text-gray-600">{data.price}</text>
-                  </div>
+                  <article itemScope itemType="https://schema.org/Product" className="p-4 hover:shadow-lg transition-shadow duration-300">
+                    <div className="h-[430px] justify-center items-center flex flex-col">
+                      <img src={data.image} alt="" className="w-[400px] aspect-auto object-fill hover:w-[420px] transition-all duration-500" />
+                    </div>
+                    <div className="flex flex-col items-start justify-center">
+                      <text style={{fontFamily: 'Donegal_One'}} className="text-3xl px-12">{data.jewelName}</text>
+                      <text style={{fontFamily: 'NunitoSans'}} className="text-xl px-12 text-gray-600">{data.price}</text>
+                    </div>
+                  </article>
                 </SwiperSlide>
               ))}
             </Swiper>
