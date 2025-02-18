@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Donegal_One, Geist, Geist_Mono } from "next/font/google";
+import { Donegal_One, Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "./styles/globals.css";
 import { Provider } from "@/components/ui/provider";
 
@@ -17,6 +17,12 @@ const donegalOne = Donegal_One({
   variable: "--font-donegal-one",
   subsets: ["latin"],
   weight: "400",
+})
+
+const nunitoSans = Nunito_Sans({
+  variable: "--font-nunito-sans",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 })
 
 export const metadata: Metadata = {
@@ -38,7 +44,7 @@ export default function RootLayout({
           />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${donegalOne.variable} ${nunitoSans.variable} antialiased`}
       >
         <Provider>{children}</Provider>
       </body>
