@@ -7,14 +7,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface BaseDetails {
     icon: string;
-    [key: string]: string;
-  }
-  
-  interface JewelryDetailsType {
+    [key: string]: string | number;
+}
+
+interface JewelryDetailsType {
     'Product Details': {
-      [key: string]: BaseDetails;
+        [key: string]: BaseDetails;
     };
-  }
+}
 
 const jewelryDetails: JewelryDetailsType = {
     'Product Details': {
@@ -42,8 +42,49 @@ const jewelryDetails: JewelryDetailsType = {
             icon: '/window.svg',
             'description': 'These gorgeous 22 Karat gold studs feature a round base accented with artistic cutout and bead detailing.\n\nThe ornate artistry of these stud earrings is enough to elevate the beauty of your traditional festive ensembles. Save this pair for grand festivities and auspicious celebrations.'
         }
-    },
+    }
 }
+
+interface PriceBreakdown {
+    productDetail: string;
+    productIcon?: string;  // Optional icon path
+    productSubtitle?: string; // Optional subtitle
+    rate: string | number;
+    weight: string;
+    discount: string;
+    value: string;
+    isTotal?: boolean;
+}
+
+const priceRows: PriceBreakdown[] = [
+    {
+        productDetail: 'YELLOW GOLD',
+        productIcon: '/next.svg', // Optional
+        productSubtitle: '18KT', // Optional
+        rate: '₹ 6570/g',
+        weight: '0.212 ct/ 0.042 g',
+        discount: '-₹ 1,717.43',
+        value: '₹ 66,979.67'
+    },
+    {
+        productDetail: 'MAKING CHARGES',
+        productIcon: '', // Optional
+        productSubtitle: '', // Optional
+        rate: '₹ 6570/g',
+        weight: '0.212 ct/ 0.042 g',
+        discount: '-₹ 1,717.43',
+        value: '₹ 66,979.67'
+    },
+
+    {
+        productDetail: 'GRAND TOTAL',
+        rate: '',
+        weight: '',
+        discount: '',
+        value: '₹ 133,959.34',
+        isTotal: true // Mark this as total row
+    }
+];
 
 export default function Product() {
 
@@ -65,12 +106,12 @@ export default function Product() {
                     />
 
                     <div className="w-[40%] flex flex-col justify-start items-start gap-10 h-[auto]">
-                        <text className="font-[family-name:var(--font-donegal-one)] font-bold text-4xl">Jewel Name</text>
-                        <text className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-50">Sample Description...</text>
+                        <span className="font-[family-name:var(--font-donegal-one)] font-bold text-4xl">Jewel Name</span>
+                        <span className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-50">Sample Description...</span>
                     </div>
                 </div>
 
-                <text className="mt-10 font-bold text-4xl font-[family-name:var(--font-nunito-sans)]">Jewelry Details</text>
+                <span className="mt-10 font-bold text-4xl font-[family-name:var(--font-nunito-sans)]">Jewellery Details</span>
 
                 <div className="mt-10 rounded-full bg-[#D9D9D9] w-[40%] h-20 overflow-hidden flex flex-row relative">
                     {/* Animated background */}
@@ -154,7 +195,7 @@ export default function Product() {
                                                 animate={{ height: "auto", opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
                                                 transition={{ duration: 0.3 }}
-                                                className="overflow-hidden"
+                                                className="overflow-hidden bg-gray-100"
                                             >
                                                 <div className="p-4">
                                                     {sectionTitle === 'Description' ? (
@@ -171,7 +212,7 @@ export default function Product() {
                                                                         key={key}
                                                                         className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg"
                                                                     >
-                                                                        <span className="text-lg font-bold">{value}</span>
+                                                                        <span className="text-lg font-bold text-center">{value}</span>
                                                                         <span className="text-sm text-gray-500 mt-1">{key}</span>
                                                                     </div>
                                                                 )
@@ -184,6 +225,70 @@ export default function Product() {
                                     </AnimatePresence>
                                 </div>
                             ))}
+                        </div>
+                    )}
+
+                    {activeSection === 'price' && (
+                        <div className="w-full rounded-t-xl outline outline-2 outline-gray-200">
+                            <div className="grid grid-cols-5 w-full text-center">
+                                {/* Headers */}
+                                <div className="contents">
+                                    {['PRODUCT DETAILS', 'RATE', 'WEIGHT', 'DISCOUNT', 'VALUE'].map((header) => (
+                                        <div key={header} className="py-4 px-2 border-b border-gray-200">
+                                            <span className="text-sm font-medium text-gray-500">
+                                                {header}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Table Rows */}
+                                {priceRows.map((row, index) => (
+                                    <div key={index} className="contents">
+                                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                                            <div className="flex items-center justify-center gap-2">
+                                                {row.productIcon && !row.isTotal && (
+                                                    <img
+                                                        src={row.productIcon}
+                                                        alt=""
+                                                        className="w-5 h-5"
+                                                    />
+                                                )}
+                                                <div className="flex flex-col items-center">
+                                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                                        {row.productDetail}
+                                                    </span>
+                                                    {row.productSubtitle && !row.isTotal && (
+                                                        <span className="text-xs text-gray-400">
+                                                            {row.productSubtitle}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                                {row.rate}
+                                            </span>
+                                        </div>
+                                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                                {row.weight}
+                                            </span>
+                                        </div>
+                                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-green-500'}`}>
+                                                {row.discount}
+                                            </span>
+                                        </div>
+                                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                                            <span className={`text-sm font-medium ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
+                                                {row.value}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </motion.div>
