@@ -1,8 +1,28 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { NunitoSans } from '@/public/fonts/fonts';
+import { useState } from 'react';
 
 export default function Navbar() {
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // First add this after your existing useState declarations
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Add these functions before the return statement
+  const handleMouseEnter = () => {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    setIsDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsDropdownOpen(false);
+    }, 100); // 300ms delay before closing
+    setDropdownTimeout(timeout);
+  };
 
   const iconClass = () => 'flex flex-col items-center select-none text-[#34758f] hover:scale-110 transition-all hover:text-[#116c96]';
 
@@ -48,9 +68,76 @@ export default function Navbar() {
               </div>
             </Link>
 
-            <div className={iconClass()}>
-              <i className="material-icons">person</i>
-              <text style={NunitoSans.style}>Account</text>
+            <div className="relative">
+              <div
+                className={iconClass()}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <i className="material-icons">person</i>
+                <text style={NunitoSans.style}>Account</text>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div
+                    className="absolute top-full right-0 mt-2 w-52 bg-white rounded-lg shadow-lg py-3 z-50"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                  >
+                    {!isLoggedIn ? (
+                      <>
+                        <div className="px-4 pb-3 mb-2 border-b border-gray-100">
+                          <Link href="/signup">
+                            <button className="w-full mb-2 px-4 py-2 border-2 border-[#34758f] text-[#34758f] rounded-full hover:bg-gray-50 transition-colors">
+                              <div className="flex items-center justify-center gap-2">
+                                <i className="material-icons text-sm">person_add</i>
+                                <span className="text-sm font-medium">Sign Up</span>
+                              </div>
+                            </button>
+                          </Link>
+                          <Link href="/signin">
+                            <button className="w-full px-4 py-2 bg-[#34758f] text-white rounded-full hover:bg-[#116c96] transition-colors">
+                              <div className="flex items-center justify-center gap-2">
+                                <i className="material-icons text-sm">login</i>
+                                <span className="text-sm font-medium">Sign In</span>
+                              </div>
+                            </button>
+                          </Link>
+                        </div>
+                        <div className="px-4">
+                          <button
+                            className="w-full text-left text-sm text-gray-600 hover:text-[#34758f] flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition-colors rounded-md"
+                            onClick={() => {/* Add agent signin logic */ }}
+                          >
+                            <i className="material-icons text-sm">badge</i>
+                            Sign in as Agent
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="px-4 pb-2 mb-2">
+                          <Link href="/my-orders">
+                            <div className="px-2 py-1.5 rounded hover:bg-gray-50 cursor-pointer flex items-center gap-2">
+                              <i className="material-icons text-sm text-gray-600">shopping_bag</i>
+                              <span className="text-sm text-gray-600">My Orders</span>
+                            </div>
+                          </Link>
+                        </div>
+                        <div className="px-4 pt-2 border-t border-gray-100">
+                          <button
+                            className="w-full text-left text-sm text-red-500 hover:text-red-600 flex items-center gap-2 px-2 py-1.5 rounded hover:bg-red-50 transition-colors"
+                            onClick={() => setIsLoggedIn(false)}
+                          >
+                            <i className="material-icons text-sm">logout</i>
+                            Sign Out
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
