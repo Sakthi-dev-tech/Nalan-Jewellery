@@ -76,41 +76,63 @@ const jewelryDetails: JewelryDetailsType = {
 
 interface PriceBreakdown {
     productDetail: string;
-    productIcon?: string;  // Optional icon path
-    productSubtitle?: string; // Optional subtitle
-    rate: string | number;
-    weight: string;
-    discount: string;
-    value: string;
+    productIcon?: string;
+    productSubtitle?: string;
+    rate: {
+        value: number;
+        unit: string;
+    };
+    weight: {
+        carat?: number;
+        gram: number;
+    };
+    discount: number;
+    value: number;
     isTotal?: boolean;
 }
 
 const priceRows: PriceBreakdown[] = [
     {
         productDetail: 'YELLOW GOLD',
-        productIcon: '/globe.svg', // Optional
-        productSubtitle: '18KT', // Optional
-        rate: '₹ 6570/g',
-        weight: '0.212 ct/ 0.042 g',
-        discount: '-₹ 1,717.43',
-        value: '₹ 66,979.67'
+        productIcon: '/globe.svg',
+        productSubtitle: '18KT',
+        rate: {
+            value: 6570,
+            unit: 'g'
+        },
+        weight: {
+            carat: 0.212,
+            gram: 0.042
+        },
+        discount: -1717.43,
+        value: 66979.67
     },
     {
         productDetail: 'MAKING CHARGES',
-        productIcon: '', // Optional
-        productSubtitle: '', // Optional
-        rate: '₹ 6570/g',
-        weight: '0.212 ct/ 0.042 g',
-        discount: '-₹ 1,717.43',
-        value: '₹ 66,979.67'
+        productIcon: '',
+        productSubtitle: '',
+        rate: {
+            value: 6570,
+            unit: 'ct'
+        },
+        weight: {
+            gram: 0.042
+        },
+        discount: -1717.43,
+        value: 66979.67
     },
     {
         productDetail: 'GRAND TOTAL',
-        rate: '',
-        weight: '',
-        discount: '',
-        value: '₹ 133,959.34',
-        isTotal: true // Mark this as total row
+        rate: {
+            value: 0,
+            unit: ''
+        },
+        weight: {
+            gram: 0
+        },
+        discount: -3434.86,
+        value: 133959.34,
+        isTotal: true
     }
 ];
 
@@ -388,22 +410,24 @@ export default function Product() {
                                         </div>
                                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
                                             <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
-                                                {row.rate}
+                                                {row.rate.value > 0 ? `$ ${row.rate.value.toLocaleString()}/${row.rate.unit}` : ''}
                                             </span>
                                         </div>
                                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
                                             <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
-                                                {row.weight}
+                                                {row.weight.carat
+                                                    ? `${row.weight.carat} ct/ ${row.weight.gram}g`
+                                                    : row.weight.gram > 0 ? `${row.weight.gram}g` : ''}
                                             </span>
                                         </div>
                                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-green-500'}`}>
-                                                {row.discount}
+                                            <span className={`text-sm text-green-500`}>
+                                                {row.discount !== 0 ? `$ ${row.discount.toLocaleString()}` : ''}
                                             </span>
                                         </div>
                                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
                                             <span className={`text-sm font-medium ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
-                                                {row.value}
+                                                ${row.value.toLocaleString()}
                                             </span>
                                         </div>
                                     </div>
@@ -442,7 +466,9 @@ export default function Product() {
                     <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-8">
                         <div className="flex flex-col">
                             <span className="text-sm text-gray-500">Total Price</span>
-                            <span className="text-2xl font-bold">₹133,959.34</span>
+                            <span className="text-2xl font-bold">
+                                ${priceRows.find(row => row.isTotal)?.value.toLocaleString() ?? '0'}
+                            </span>
                         </div>
                         <button className="bg-[#927B0E] text-white px-8 py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-3">
                             <img src="/shopping-cart.svg" className="aspect-auto h-5" />
