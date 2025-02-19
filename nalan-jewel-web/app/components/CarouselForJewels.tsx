@@ -37,7 +37,7 @@ export default function CarouselForJewels({ dataArray }: CarouselForJewelsProps)
         speed={1500} // Slow down the swiper animation
       >
         {dataArray.map((data, index) => (
-          <SwiperSlide key={index} className="py-8 px-2"> {/* Add padding around slide */}
+          <SwiperSlide key={index} className="py-8 px-5"> {/* Add padding around slide */}
             <Link href='/product'>
               <article
                 itemScope

@@ -14,7 +14,7 @@ export interface Category {
 export const jewelryCatergories: Category[] = [
     {
         id: 'all-jewelry',
-        name: 'All Jewelry',
+        name: 'All Jewellery',
         subCategories : {
             'Category': [
                 {

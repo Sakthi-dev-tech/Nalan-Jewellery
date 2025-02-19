@@ -5,6 +5,35 @@ import CategoryNavigation from "../components/CategoryNavigationForHome";
 import Navbar from "../components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface JewelryImage {
+    id: number;
+    thumbnail: string;   // Small image for catalog
+    fullSize: string;    // High-resolution image for modal
+    alt: string;
+}
+
+const jewelryImages: JewelryImage[] = [
+    {
+        id: 1,
+        thumbnail: "/images/sample_jewel_1.svg",
+        fullSize: "/images/sample_jewel_1.svg",
+        alt: "Gold Stud Earring - Front View"
+    },
+    {
+        id: 2,
+        thumbnail: "/images/sample_jewel_2.svg",
+        fullSize: "/images/sample_jewel_2.svg",
+        alt: "Gold Stud Earring - Front View"
+    },
+    {
+        id: 3,
+        thumbnail: "/images/sample_jewel_3.svg",
+        fullSize: "/images/sample_jewel_3.svg",
+        alt: "Gold Stud Earring - Front View"
+    },
+    // Add more images as needed
+];
+
 interface BaseDetails {
     icon: string;
     [key: string]: string | number;
@@ -59,7 +88,7 @@ interface PriceBreakdown {
 const priceRows: PriceBreakdown[] = [
     {
         productDetail: 'YELLOW GOLD',
-        productIcon: '/next.svg', // Optional
+        productIcon: '/globe.svg', // Optional
         productSubtitle: '18KT', // Optional
         rate: '₹ 6570/g',
         weight: '0.212 ct/ 0.042 g',
@@ -75,7 +104,6 @@ const priceRows: PriceBreakdown[] = [
         discount: '-₹ 1,717.43',
         value: '₹ 66,979.67'
     },
-
     {
         productDetail: 'GRAND TOTAL',
         rate: '',
@@ -90,26 +118,117 @@ export default function Product() {
 
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
     const [activeSection, setActiveSection] = useState<'details' | 'price'>('details');
+
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     return (
         <>
             <Navbar />
-            <main className="mt-[8vh] flex flex-col items-center select-none">
+            <main className="mt-[8vh] pb-36 flex flex-col items-center select-none">
                 <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
                     <CategoryNavigation />
                 </div>
 
                 <div className="mt-[5vh] w-full flex flex-row items-start justify-center gap-12 h-full">
-                    <img
-                        src="/images/sample_jewel_1.svg"
-                        alt={'Jewel Image'}
-                        className="w-[500px] aspect-auto object-contain rounded-lg"
-                    />
+                    <div className="flex flex-col gap-4">
+                        {/* Main Image */}
+                        <div
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                        >
+                            <img
+                                src={jewelryImages[selectedImageIndex].thumbnail}
+                                alt={jewelryImages[selectedImageIndex].alt}
+                                className="w-full aspect-auto object-contain rounded-lg"
+                            />
+                        </div>
+
+                        {/* Thumbnails */}
+                        <div className="flex flex-row gap-2">
+                            {jewelryImages.map((image, index) => (
+                                <div
+                                    key={image.id}
+                                    onClick={() => setSelectedImageIndex(index)}
+                                    className={`w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 ${selectedImageIndex === index ? 'border-[#927B0E]' : 'border-transparent'
+                                        }`}
+                                >
+                                    <img
+                                        src={image.thumbnail}
+                                        alt={image.alt}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
                     <div className="w-[40%] flex flex-col justify-start items-start gap-10 h-[auto]">
                         <span className="font-[family-name:var(--font-donegal-one)] font-bold text-4xl">Jewel Name</span>
                         <span className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-50">Sample Description...</span>
                     </div>
                 </div>
+
+                {/* Image Modal */}
+                <AnimatePresence>
+                    {isModalOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            <div className="relative w-full h-full flex items-center justify-center p-8">
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="absolute top-4 right-4 text-white hover:text-gray-300 z-50"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+
+                                {/* Navigation arrows */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedImageIndex(prev => prev > 0 ? prev - 1 : jewelryImages.length - 1);
+                                    }}
+                                    className="absolute left-4 text-white hover:text-gray-300"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedImageIndex(prev => prev < jewelryImages.length - 1 ? prev + 1 : 0);
+                                    }}
+                                    className="absolute right-4 text-white hover:text-gray-300"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </button>
+
+                                {/* Full-size image */}
+                                <motion.img
+                                    key={selectedImageIndex}
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    src={jewelryImages[selectedImageIndex].fullSize}
+                                    alt={jewelryImages[selectedImageIndex].alt}
+                                    className="max-h-[90vh] max-w-[90vw] object-contain"
+                                    onClick={(e) => e.stopPropagation()}
+                                />
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 <span className="mt-10 font-bold text-4xl font-[family-name:var(--font-nunito-sans)]">Jewellery Details</span>
 
@@ -144,7 +263,7 @@ export default function Product() {
                     </div>
                 </div>
 
-                {/* Content Section */}
+                {/* Table for Product Details */}
                 <motion.div
                     className="mt-8 w-[50%]"
                     initial={false}
@@ -228,6 +347,7 @@ export default function Product() {
                         </div>
                     )}
 
+                    {/* Table For Price Breakdown */}
                     {activeSection === 'price' && (
                         <div className="w-full rounded-t-xl outline outline-2 outline-gray-200">
                             <div className="grid grid-cols-5 w-full text-center">
@@ -235,7 +355,7 @@ export default function Product() {
                                 <div className="contents">
                                     {['PRODUCT DETAILS', 'RATE', 'WEIGHT', 'DISCOUNT', 'VALUE'].map((header) => (
                                         <div key={header} className="py-4 px-2 border-b border-gray-200">
-                                            <span className="text-sm font-medium text-gray-500">
+                                            <span className="text-sm font-bold text-gray-500">
                                                 {header}
                                             </span>
                                         </div>
@@ -293,7 +413,43 @@ export default function Product() {
                     )}
                 </motion.div>
 
-                <div className="h-32" /> {/* Spacer */}
+                <div className="w-[60%] mt-10 flex justify-evenly">
+                    <button className="w-[30%] h-14 bg-[#FB4C4C] text-black rounded-full hover:bg-[#791f1f] hover:scale-110 transition-all duration-300 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center justify-center gap-2">
+                            <img
+                                src="/heart.svg"
+                                className="h-5 w-5 transition-transform"
+                                alt=""
+                            />
+                            <span className="text-sm font-medium">Add to Wishlist</span>
+                        </div>
+                    </button>
+
+                    <button className="w-[30%] h-14 bg-[#7CA6AB] text-black rounded-full hover:bg-[#1a585f] transition-all duration-300 hover:scale-110 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
+                        <div className="flex items-center justify-center gap-2">
+                            <img
+                                src="/book-appt-icon.svg"
+                                className="h-10 w-10 transition-transform"
+                                alt=""
+                            />
+                            <span className="text-sm font-medium">Book Appointment</span>
+                        </div>
+                    </button>
+                </div>
+
+                {/* Fixed Bottom Bar for Add to Cart */}
+                {!isModalOpen && <div className="fixed bottom-0 left-0 right-0 h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+                    <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-8">
+                        <div className="flex flex-col">
+                            <span className="text-sm text-gray-500">Total Price</span>
+                            <span className="text-2xl font-bold">₹133,959.34</span>
+                        </div>
+                        <button className="bg-[#927B0E] text-white px-8 py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-3">
+                            <img src="/shopping-cart.svg" className="aspect-auto h-5" />
+                            <span>Add to Cart</span>
+                        </button>
+                    </div>
+                </div>}
             </main>
         </>
     )
