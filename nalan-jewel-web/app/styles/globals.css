@@ -16,3 +16,18 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer utilities {
+  .scrollbar-hide {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;     /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+      display: none;            /* Chrome, Safari and Opera */
+  }
+  
+  .filter-header-spacer {
+    height: var(--filter-header-height, 0px);
+    transition: height 0.3s ease;
+}
+}

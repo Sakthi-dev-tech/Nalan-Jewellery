@@ -49,9 +49,6 @@ export default function RootLayout({
       >
         <Provider>
           {children}       
-          <footer>
-            <Footer />
-          </footer>
         </Provider>
       </body>
     </html>

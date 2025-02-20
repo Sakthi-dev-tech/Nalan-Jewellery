@@ -13,7 +13,7 @@ export interface Category {
 
 export const jewelryCatergories: Category[] = [
     {
-        id: 'all-jewelry',
+        id: 'all-jewellery',
         name: 'All Jewellery',
         subCategories : {
             'Category': [
@@ -21,13 +21,13 @@ export const jewelryCatergories: Category[] = [
                     id: 'all-jewellery',
                     name: 'All Jewellery',
                     image: '',
-                    path: '/products-list?basecategory=all'
+                    path: '/products-list'
                 },
                 {
                     id: 'all-earrings',
                     name: 'Earrings',
                     image: '',
-                    path: '/products-list?basecategory=earrings'
+                    path: '/products-list?products=earrings'
                 },
                 {
                     id: 'all-pendants',
@@ -102,7 +102,7 @@ export const jewelryCatergories: Category[] = [
                     id: 'men',
                     name: 'Men',
                     image: '',
-                    path: '/products-list?basecategory=men'
+                    path: '/products-list?gender=men'
                 }, 
                 {
                     id: 'women',

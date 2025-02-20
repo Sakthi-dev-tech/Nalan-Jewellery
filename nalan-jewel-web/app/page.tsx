@@ -9,6 +9,7 @@ import { Parisienne } from "@/public/fonts/fonts";
 import CarouselForJewels from "./components/CarouselForJewels";
 import { Text } from "@chakra-ui/react";
 import CategoryNavigation from "./components/CategoryNavigationForHome";
+import Footer from "./components/Footer";
 
 export default function Home() {
 
@@ -94,6 +95,10 @@ export default function Home() {
           <CarouselForJewels dataArray={imagesForNewArrivals} />
         </div>
       </main>
+
+      <footer>
+        <Footer />
+      </footer>
     </>
   );
 }

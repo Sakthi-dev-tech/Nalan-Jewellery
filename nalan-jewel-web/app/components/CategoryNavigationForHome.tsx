@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { jewelryCatergories, Category } from '../interfaces/TypeOfJewelryCollectionForHomepage';
+import { jewelryCatergories, Category } from '../interfaces/TypeOfJewelleryCollectionForHomepage';
 import Link from 'next/link';
 
 export default function CategoryNavigation() {
