@@ -175,7 +175,7 @@ export default function Navbar() {
             <input
               type="text"
               className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none bg-white" // Add right padding
-              placeholder="Search for your favourite jewelry..."
+              placeholder="Search for your favourite jewellery..."
             />
             {/* Search icon */}
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

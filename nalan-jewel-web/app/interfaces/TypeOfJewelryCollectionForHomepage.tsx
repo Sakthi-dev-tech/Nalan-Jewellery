@@ -18,16 +18,16 @@ export const jewelryCatergories: Category[] = [
         subCategories : {
             'Category': [
                 {
-                    id: 'all-jewelry',
-                    name: 'All Jewelry',
+                    id: 'all-jewellery',
+                    name: 'All Jewellery',
                     image: '',
-                    path: ''
+                    path: '/products-list?basecategory=all'
                 },
                 {
                     id: 'all-earrings',
                     name: 'Earrings',
                     image: '',
-                    path: ''
+                    path: '/products-list?basecategory=earrings'
                 },
                 {
                     id: 'all-pendants',
@@ -102,7 +102,7 @@ export const jewelryCatergories: Category[] = [
                     id: 'men',
                     name: 'Men',
                     image: '',
-                    path: ''
+                    path: '/products-list?basecategory=men'
                 }, 
                 {
                     id: 'women',

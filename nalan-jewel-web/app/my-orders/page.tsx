@@ -33,7 +33,7 @@ const sampleOrders: OrderItem[] = [
         productName: "Diamond Stud Earrings",
         price: 25000,
         quantity: 2,
-        status: "Shipped",
+        status: "Processing",
         orderDate: "2024-02-10",
         estimatedDelivery: "2024-02-20",
         trackingNumber: "TRK123456789",
