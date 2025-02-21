@@ -1,12 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from "react";
 import Navbar from "../components/Navbar";
 import CategoryNavigation from "../components/CategoryNavigationForHome";
 import { motion } from "framer-motion";
 import { JewelleryList } from "../interfaces/JewelleryAttributes";
 import Link from "next/link";
+import Footer from "../components/Footer";
 
 type FilterCategory = keyof FilterState;
 type FilterOptions = Record<FilterCategory, string[]>;
@@ -104,7 +105,7 @@ export default function ProductsList() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                     <span className="text-sm text-gray-600">Active Filters:</span>
                                     {Object.entries(filters).map(([category, selectedOptions]) =>
-                                        selectedOptions.map((option) => (
+                                        selectedOptions.map((option: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined) => (
                                             <motion.span
                                                 key={`${category}-${option}`}
                                                 initial={{ scale: 0.8, opacity: 0 }}
@@ -235,7 +236,7 @@ export default function ProductsList() {
                         </div>
                     </motion.aside>
 
-                    {/* Rest of your content will go here */}
+                    {/* Products List */}
                     <div className="flex-1">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {JewelleryList.map((jewellery) => (
@@ -245,7 +246,7 @@ export default function ProductsList() {
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all"
                                 >
-                                    <Link href={`/product/${jewellery.id}`}>
+                                    <Link href={`/product?=${jewellery.id}`}>
                                         <div className="relative">
                                             <img
                                                 src={jewellery.coverImage}
@@ -254,7 +255,7 @@ export default function ProductsList() {
                                             />
                                             {jewellery.numInStock < 5 && (
                                                 <div className="absolute bottom-0 left-0 right-0 p-0">
-                                                    <div className="bg-gradient-to-r from-red-500/90 to-white/90 text-white px-4 py-2 text-sm rounded-t-lg backdrop-blur-sm">
+                                                    <div className="bg-gradient-to-r from-red-500/80 to-white/80 text-white px-4 py-2 text-sm rounded-t-lg backdrop-blur-sm">
                                                         <div className="flex items-center gap-2">
                                                             <i className="material-icons text-sm animate-pulse">
                                                                 local_fire_department
@@ -281,7 +282,7 @@ export default function ProductsList() {
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <p className="text-xl font-bold text-[#34758f]">
-                                                    ₹{jewellery.price.toLocaleString()}
+                                                    ${jewellery.price.toLocaleString()}
                                                 </p>
                                                 <motion.button
                                                     whileHover={{ scale: 1.05 }}
@@ -317,6 +318,10 @@ export default function ProductsList() {
                     </div>
                 </div>
             </main>
+
+            <footer>
+                <Footer />
+            </footer>
         </>
     );
 }
