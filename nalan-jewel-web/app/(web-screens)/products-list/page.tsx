@@ -2,12 +2,12 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, useCallback, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from "react";
-import Navbar from "../components/Navbar";
-import CategoryNavigation from "../components/CategoryNavigationForHome";
+import Navbar from "../../components/Navbar";
+import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import { motion } from "framer-motion";
-import { JewelleryList } from "../interfaces/JewelleryAttributes";
+import { JewelleryList } from "../../interfaces/JewelleryAttributes";
 import Link from "next/link";
-import Footer from "../components/Footer";
+import Footer from "../../components/Footer";
 
 type FilterCategory = keyof FilterState;
 type FilterOptions = Record<FilterCategory, string[]>;

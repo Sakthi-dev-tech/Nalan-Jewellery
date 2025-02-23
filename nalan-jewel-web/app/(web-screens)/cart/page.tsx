@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import CategoryNavigation from "../components/CategoryNavigationForHome";
-import Navbar from "../components/Navbar";
+import CategoryNavigation from "../../components/CategoryNavigationForHome";
+import Navbar from "../../components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 

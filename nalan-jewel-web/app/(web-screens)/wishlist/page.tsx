@@ -1,8 +1,8 @@
 'use client';
 
 import Link from "next/link";
-import CategoryNavigation from "../components/CategoryNavigationForHome";
-import Navbar from "../components/Navbar";
+import CategoryNavigation from "../../components/CategoryNavigationForHome";
+import Navbar from "../../components/Navbar";
 import { motion } from 'framer-motion';
 
 interface WishlistItems {

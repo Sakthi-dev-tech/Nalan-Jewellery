@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { NunitoSans } from '@/public/fonts/fonts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SignInSignUpLogic } from '../functions/SignUpSignInLogic';
+import { supabase } from '@/libs/supabase-client';
 
 export default function Navbar() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // First add this after your existing useState declarations
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -31,11 +33,28 @@ export default function Navbar() {
 
   const iconClass = () => 'flex flex-col items-center select-none text-[#34758f] hover:scale-110 transition-all hover:text-[#116c96]';
 
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth event:', event, 'Session:', session);
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const AuthModal = ({ isOpen, onClose, type }: { isOpen: boolean; onClose: () => void; type: 'signup' | 'signin' | 'agent' }) => {
     if (!isOpen) return null;
 
     const [modalEmail, setModalEmail] = useState('');
     const [modalPassword, setModalPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
@@ -58,9 +77,12 @@ export default function Navbar() {
 
           {type !== 'agent' && (
             <>
-              <button className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors">
-                <img src='/images/google.svg' className="w-5 h-5" />
-                <span>Continue with Google</span>
+              <button className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors" onClick={async () => {
+                const { data, error } = await new SignInSignUpLogic().SignInUsingFacebook();
+                console.log(data, error);
+              }}>
+                <img src='/facebook-icon.svg' className="w-5 h-5" />
+                <span>Continue with Facebook</span>
               </button>
 
               <div className="relative my-6">
@@ -104,8 +126,10 @@ export default function Navbar() {
                     type="checkbox"
                     id={`remember-${type}`}
                     className="accent-[#34758f] w-4 h-4 rounded border-gray-300 bg-white"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                   />
-                  <label htmlFor={`remember-${type}`} className="ml-2 text-sm text-gray-600">
+                  <label htmlFor={`remember-${type}`} className="ml-2 text-sm text-gray-600" >
                     Remember me
                   </label>
                 </div>
@@ -118,6 +142,23 @@ export default function Navbar() {
             <button
               type="submit"
               className="w-full px-4 py-2 bg-[#34758f] text-white rounded-lg hover:bg-[#116c96] transition-colors"
+              onClick={async (e) => {
+                e.preventDefault(); // Prevent form submission
+                if (type === 'signup') {
+                  const { data, error } = await new SignInSignUpLogic().SignUpUsingEmail(modalEmail, modalPassword);
+                  console.log(data, error);
+                } else if (type === 'signin') {
+                  const { data, error } = await new SignInSignUpLogic().SignInUsingEmail(
+                    modalEmail,
+                    modalPassword,
+                    rememberMe
+                  );
+                  if (!error && data) {
+                    onClose(); // Close the modal on successful login
+                  }
+                  console.log(data, error);
+                }
+              }}
             >
               {type === 'signup' ? 'Sign Up' : 'Sign In'}
             </button>
@@ -273,7 +314,7 @@ export default function Navbar() {
                         <div className="px-4 pt-2 border-t border-gray-100">
                           <button
                             className="w-full text-left text-sm text-red-500 hover:text-red-600 flex items-center gap-2 px-2 py-1.5 rounded hover:bg-red-50 transition-colors"
-                            onClick={() => setIsLoggedIn(false)}
+                            onClick={() => new SignInSignUpLogic().SignOutUser()}
                           >
                             <i className="material-icons text-sm">logout</i>
                             Sign Out
