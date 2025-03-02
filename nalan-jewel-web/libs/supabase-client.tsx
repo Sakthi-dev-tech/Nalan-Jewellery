@@ -30,7 +30,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
           removeItem: (key) => {
               try {
                   localStorage.removeItem(key);
-              } catch {}
+              } catch (err) {
+                console.error(err);
+              }
           },
       },
   },

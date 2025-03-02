@@ -5,9 +5,10 @@ import { useState, useEffect, useCallback, JSXElementConstructor, ReactElement, 
 import Navbar from "../../components/Navbar";
 import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import { motion } from "framer-motion";
-import { JewelleryList } from "../../interfaces/JewelleryAttributes";
 import Link from "next/link";
 import Footer from "../../components/Footer";
+import { JewelleryAttributes } from "@/app/interfaces/JewelleryAttributes";
+import { supabase } from "@/libs/supabase-client";
 
 type FilterCategory = keyof FilterState;
 type FilterOptions = Record<FilterCategory, string[]>;
@@ -81,6 +82,48 @@ export default function ProductsList() {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, [handleScroll]);
+
+    // Fetch Jewellery List from Supabase
+    const [JewelleryList, setJewelleryList] = useState<JewelleryAttributes[]>([]);
+
+    useEffect(() => {
+        const fetchJewelleryList = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from("Jewellery Data")
+                    .select("*");
+
+                if (error) throw error;
+
+                if (data) {
+                    setJewelleryList(data as JewelleryAttributes[]);
+                }
+            } catch (error) {
+                console.error("Error fetching jewellery list:", error);
+            }
+        }
+
+        fetchJewelleryList();
+    }, [])
+
+    // Fetch Jewellery Images from Supabase
+    const [JewelleryImages, setJewelleryImages] = useState<string[]>([]);
+
+
+    // Replace your existing fetchJewelleryImages useEffect with this:
+    useEffect(() => {
+        const fetchJewelleryImages = async () => {
+            const { data, error } = await supabase
+                .storage
+                .listBuckets()
+
+            if (data) {
+                console.log("Image Data: ", data)
+            }
+        };
+
+        fetchJewelleryImages();
+    }, []);
 
     return (
         <>

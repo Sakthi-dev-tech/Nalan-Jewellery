@@ -4,6 +4,7 @@ import { useState } from "react";
 import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import Navbar from "../../components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
+import { PriceBreakdown } from "@/app/interfaces/JewelleryAttributes";
 
 interface JewelryImage {
     id: number;
@@ -74,22 +75,7 @@ const jewelryDetails: JewelryDetailsType = {
     }
 }
 
-interface PriceBreakdown {
-    productDetail: string;
-    productIcon?: string;
-    productSubtitle?: string;
-    rate: {
-        value: number;
-        unit: string;
-    };
-    weight: {
-        carat?: number;
-        gram: number;
-    };
-    discount: number;
-    value: number;
-    isTotal?: boolean;
-}
+
 
 const priceRows: PriceBreakdown[] = [
     {

@@ -21,50 +21,19 @@ export interface JewelleryAttributes {
     }
 }
 
-export const JewelleryList: JewelleryAttributes[] = [
-    {
-        id: 1,
-        name: 'Jewellery 1',
-        price: 1000,
-        coverImage: '/images/sample_jewel_1.svg',
-        numInStock: 10,
-        attributes: {
-            priceCategory: '< $5000',
-            jewelleryType: 'Diamond Jewellery',
-            product: 'Bracelet',
-            brand: 'Nalan',
-            gender: 'Men',
-            purity: '22',
-            occassion: 'Casual Wear',
-            metal: 'Diamond',
-            diamondClarity: 'SI1',
-            collection: '22KT Range',
-            community: 'Bengali',
-            type: 'Studs',
-            metalColour: 'White'
-        }
-    },
-
-    {
-        id: 2,
-        name: 'Jewellery 2',
-        price: 2000,
-        coverImage: '/images/sample_jewel_2.svg',
-        numInStock: 3,
-        attributes: {
-            priceCategory: '$5000-$9999',
-            jewelleryType: 'Gold Jewellery',
-            product: 'Earrings',
-            brand: 'Nalan',
-            gender: 'Women',
-            purity: '18',
-            occassion: 'Traditional and Ethnice Wear',
-            metal: 'Gold',
-            diamondClarity: 'SI1',
-            collection: '22KT Range',
-            community: 'Bengali',
-            type: 'Studs',
-            metalColour: 'White'
-        }
-    }
-];
+export interface PriceBreakdown {
+    productDetail: string;
+    productIcon?: string;
+    productSubtitle?: string;
+    rate: {
+        value: number;
+        unit: string;
+    };
+    weight: {
+        carat?: number;
+        gram: number;
+    };
+    discount: number;
+    value: number;
+    isTotal?: boolean;
+}
