@@ -15,8 +15,6 @@ interface JewelleryImage {
     alt: string;
 }
 
-var jewelleryImages: JewelleryImage[] = [];
-
 interface BaseDetails {
     icon: string;
     [key: string]: string | number;
@@ -112,60 +110,58 @@ export default function Product() {
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    const [loading, setLoading] = useState<boolean>(true);
+    const [jewelleryImages, setJewelleryImages] = useState<JewelleryImage[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [jewelleryImageFetched, setJewelleryImageFetched] = useState<boolean>(false);
 
     const searchParams = useSearchParams();
     const image_id = searchParams.get('image_id');
 
-    var num_of_images = 0
-
     useEffect(() => {
         const fetchJewelleryImages = async () => {
-            try {
-                var flag = true;
+            let numImages = 0;
+            let continueChecking = true;
 
-                while (flag) {
-                    await supabase
+            try {
+                // Check for images until we don't find one
+                while (continueChecking) {
+                    const { data } = await supabase
                         .storage
                         .from('jewellery-images')
-                        .exists(`med-res/${image_id}/${num_of_images + 1}.svg`)
-                        .then(({ data }) => {
-                            if (!data) {
-                                flag = false;
-                            } else {
-                                num_of_images += 1
-                            }
-                        })
-                        .catch((error) => {
-                            console.error("Error while fetching images: ", error)
-                        })
+                        .exists(`med-res/${image_id}/${numImages + 1}.svg`);
+
+                    if (!data) {
+                        continueChecking = false;
+                    } else {
+                        numImages += 1;
+                    }
                 }
 
+                // Create array of image objects
+                const images = Array.from({ length: numImages }, (_, i) => ({
+                    id: i + 1,
+                    thumbnail: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i + 1}.svg`,
+                    fullSize: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i + 1}.svg`,
+                    alt: `${image_id}'s ${i + 1} image`
+                }));
+
+                setJewelleryImages(images);
             } catch (error) {
-                console.error("Error while fetching images: ", error)
+                console.error("Error while fetching images: ", error);
             } finally {
-                for (let i = 1; i <= num_of_images; i++) {
-                    jewelleryImages.push({
-                        id: i,
-                        thumbnail: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i}.svg`,
-                        fullSize: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i}.svg`,
-                        alt: `${image_id}'s ${i} image`
-                    })
-                }
-
-                setLoading(false)
-                setJewelleryImageFetched(true)
+                setIsLoading(false);
+                setJewelleryImageFetched(true);
             }
-        }
+        };
 
-        if (!jewelleryImageFetched){
+        // Only fetch if we haven't already, and assuming there will always be images in the backend
+        if (jewelleryImages.length === 0) {
             fetchJewelleryImages();
         }
-    }, [])
+    }, [image_id]);
 
-    if (!loading) {
+    if (!isLoading) {
         return (
             <>
                 <Navbar />
