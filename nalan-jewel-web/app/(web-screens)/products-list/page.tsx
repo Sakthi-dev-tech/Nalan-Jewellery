@@ -105,22 +105,6 @@ export default function ProductsList() {
 
                 if (jewelleryData) {
                     setJewelleryList(jewelleryData as JewelleryAttributes[]);
-
-                    // Modified image fetching to include image_id
-                    const imageData = await Promise.all(
-                        jewelleryData.map(async (jewellery) => {
-                            const { data } = supabase
-                                .storage
-                                .from('jewellery-images')
-                                .getPublicUrl(`low-res/${jewellery.image_id}`);
-                            return {
-                                imageUrl: data.publicUrl,
-                                imageId: jewellery.image_id
-                            };
-                        })
-                    );
-
-                    setJewelleryImages(imageData);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -129,12 +113,6 @@ export default function ProductsList() {
 
         fetchData();
     }, []);
-
-    const imageUrlMap = Object.fromEntries(
-        JewelleryImages.map(img => [img.imageId, `${img.imageUrl}.svg`])
-    );
-
-    console.log("imageUrlMap: ", imageUrlMap);
 
     return (
         <>
@@ -300,10 +278,10 @@ export default function ProductsList() {
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all"
                                 >
-                                    <Link href={`/product?=${jewellery.id}`}>
+                                    <Link href={`/product?image_id=${jewellery.image_id}`}>
                                         <div className="relative">
                                             <img
-                                                src={imageUrlMap[jewellery.image_id]}
+                                                src={`https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${jewellery.image_id}/1.svg`}
                                                 alt={jewellery.name}
                                                 className="w-full h-64 object-cover"
                                             />
