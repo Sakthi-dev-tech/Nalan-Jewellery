@@ -6,14 +6,14 @@ import Navbar from "../../components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { PriceBreakdown } from "@/app/interfaces/JewelleryAttributes";
 
-interface JewelryImage {
+interface JewelleryImage {
     id: number;
     thumbnail: string;   // Small image for catalog
     fullSize: string;    // High-resolution image for modal
     alt: string;
 }
 
-const jewelryImages: JewelryImage[] = [
+const jewelleryImages: JewelleryImage[] = [
     {
         id: 1,
         thumbnail: "/images/sample_jewel_1.svg",
@@ -40,13 +40,13 @@ interface BaseDetails {
     [key: string]: string | number;
 }
 
-interface JewelryDetailsType {
+interface JewelleryDetailsType {
     'Product Details': {
         [key: string]: BaseDetails;
     };
 }
 
-const jewelryDetails: JewelryDetailsType = {
+const jewelryDetails: JewelleryDetailsType = {
     'Product Details': {
         'Metal Details': {
             icon: '/file.svg',
@@ -145,15 +145,15 @@ export default function Product() {
                             className="w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
                         >
                             <img
-                                src={jewelryImages[selectedImageIndex].thumbnail}
-                                alt={jewelryImages[selectedImageIndex].alt}
+                                src={jewelleryImages[selectedImageIndex].thumbnail}
+                                alt={jewelleryImages[selectedImageIndex].alt}
                                 className="w-full aspect-auto object-contain rounded-lg"
                             />
                         </div>
 
                         {/* Thumbnails */}
                         <div className="flex flex-row gap-2">
-                            {jewelryImages.map((image, index) => (
+                            {jewelleryImages.map((image, index) => (
                                 <div
                                     key={image.id}
                                     onClick={() => setSelectedImageIndex(index)}
@@ -201,7 +201,7 @@ export default function Product() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedImageIndex(prev => prev > 0 ? prev - 1 : jewelryImages.length - 1);
+                                        setSelectedImageIndex(prev => prev > 0 ? prev - 1 : jewelleryImages.length - 1);
                                     }}
                                     className="absolute left-4 text-white hover:text-gray-300"
                                 >
@@ -213,7 +213,7 @@ export default function Product() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setSelectedImageIndex(prev => prev < jewelryImages.length - 1 ? prev + 1 : 0);
+                                        setSelectedImageIndex(prev => prev < jewelleryImages.length - 1 ? prev + 1 : 0);
                                     }}
                                     className="absolute right-4 text-white hover:text-gray-300"
                                 >
@@ -228,8 +228,8 @@ export default function Product() {
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.9 }}
-                                    src={jewelryImages[selectedImageIndex].fullSize}
-                                    alt={jewelryImages[selectedImageIndex].alt}
+                                    src={jewelleryImages[selectedImageIndex].fullSize}
+                                    alt={jewelleryImages[selectedImageIndex].alt}
                                     className="max-h-[90vh] max-w-[90vw] object-contain"
                                     onClick={(e) => e.stopPropagation()}
                                 />

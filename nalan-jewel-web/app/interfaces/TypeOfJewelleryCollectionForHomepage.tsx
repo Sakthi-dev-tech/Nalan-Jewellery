@@ -11,7 +11,7 @@ export interface Category {
     subCategories: { [key: string]: SubCategory[] };
 }
 
-export const jewelryCatergories: Category[] = [
+export const jewelleryCatergories: Category[] = [
     {
         id: 'all-jewellery',
         name: 'All Jewellery',

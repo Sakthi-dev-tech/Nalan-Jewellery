@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { jewelryCatergories, Category } from '../interfaces/TypeOfJewelleryCollectionForHomepage';
+import { jewelleryCatergories, Category } from '../interfaces/TypeOfJewelleryCollectionForHomepage';
 import Link from 'next/link';
 
 export default function CategoryNavigation() {
@@ -12,7 +12,7 @@ export default function CategoryNavigation() {
     <div className="relative w-[60%]">
       {/* Parent Categories */}
       <div className="flex justify-center items-center gap-8">
-        {jewelryCatergories.map((category) => (
+        {jewelleryCatergories.map((category) => (
           <div
             key={category.id.toString()}
             className="relative"

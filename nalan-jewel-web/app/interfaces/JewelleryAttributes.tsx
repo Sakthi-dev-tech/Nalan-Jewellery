@@ -18,7 +18,8 @@ export interface JewelleryAttributes {
         community: 'Bengali' | 'Bihari' | 'Classic Must Haves' | 'South Indian' | 'Tamil' | 'Telugu';
         type: 'Drops' | 'Hoops' | 'Jhumka' | 'Studs' | 'Others';
         metalColour: 'Rose' | 'White' | 'White and Rose'
-    }
+    },
+    image_id: string;
 }
 
 export interface PriceBreakdown {

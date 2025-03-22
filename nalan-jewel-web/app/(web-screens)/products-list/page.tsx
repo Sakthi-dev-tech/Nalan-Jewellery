@@ -39,6 +39,11 @@ const filterCategories: FilterOptions = {
 
 type ScrollDirection = "up" | "down";
 
+interface JewelleryImage {
+    imageUrl: string;
+    imageId: string;
+}
+
 export default function ProductsList() {
     const searchParams = useSearchParams();
 
@@ -86,44 +91,50 @@ export default function ProductsList() {
     // Fetch Jewellery List from Supabase
     const [JewelleryList, setJewelleryList] = useState<JewelleryAttributes[]>([]);
 
+    // Fetch Jewellery Images from Supabase
+    const [JewelleryImages, setJewelleryImages] = useState<JewelleryImage[]>([]);
+
     useEffect(() => {
-        const fetchJewelleryList = async () => {
+        const fetchData = async () => {
             try {
-                const { data, error } = await supabase
+                const { data: jewelleryData, error: jewelleryError } = await supabase
                     .from("Jewellery Data")
                     .select("*");
 
-                if (error) throw error;
+                if (jewelleryError) throw jewelleryError;
 
-                if (data) {
-                    setJewelleryList(data as JewelleryAttributes[]);
+                if (jewelleryData) {
+                    setJewelleryList(jewelleryData as JewelleryAttributes[]);
+
+                    // Modified image fetching to include image_id
+                    const imageData = await Promise.all(
+                        jewelleryData.map(async (jewellery) => {
+                            const { data } = supabase
+                                .storage
+                                .from('jewellery-images')
+                                .getPublicUrl(`low-res/${jewellery.image_id}`);
+                            return {
+                                imageUrl: data.publicUrl,
+                                imageId: jewellery.image_id
+                            };
+                        })
+                    );
+
+                    setJewelleryImages(imageData);
                 }
             } catch (error) {
-                console.error("Error fetching jewellery list:", error);
-            }
-        }
-
-        fetchJewelleryList();
-    }, [])
-
-    // Fetch Jewellery Images from Supabase
-    const [JewelleryImages, setJewelleryImages] = useState<string[]>([]);
-
-
-    // Replace your existing fetchJewelleryImages useEffect with this:
-    useEffect(() => {
-        const fetchJewelleryImages = async () => {
-            const { data, error } = await supabase
-                .storage
-                .listBuckets()
-
-            if (data) {
-                console.log("Image Data: ", data)
+                console.error("Error fetching data:", error);
             }
         };
 
-        fetchJewelleryImages();
+        fetchData();
     }, []);
+
+    const imageUrlMap = Object.fromEntries(
+        JewelleryImages.map(img => [img.imageId, `${img.imageUrl}.svg`])
+    );
+
+    console.log("imageUrlMap: ", imageUrlMap);
 
     return (
         <>
@@ -292,7 +303,7 @@ export default function ProductsList() {
                                     <Link href={`/product?=${jewellery.id}`}>
                                         <div className="relative">
                                             <img
-                                                src={jewellery.coverImage}
+                                                src={imageUrlMap[jewellery.image_id]}
                                                 alt={jewellery.name}
                                                 className="w-full h-64 object-cover"
                                             />
