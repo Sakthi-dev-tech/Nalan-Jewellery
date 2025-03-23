@@ -278,10 +278,10 @@ export default function ProductsList() {
                                     animate={{ opacity: 1, y: 0 }}
                                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all"
                                 >
-                                    <Link href={`/product?image_id=${jewellery.image_id}`}>
+                                    <Link href={`/product?product_id=${jewellery.id}`}>
                                         <div className="relative">
                                             <img
-                                                src={`https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${jewellery.image_id}/1.svg`}
+                                                src={`https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${jewellery.id}/1.svg`}
                                                 alt={jewellery.name}
                                                 className="w-full h-64 object-cover"
                                             />

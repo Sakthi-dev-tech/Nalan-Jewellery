@@ -2,6 +2,7 @@ export interface JewelleryAttributes {
     id: number;
     name: string;
     price: number;
+    description: string;
     coverImage: string;
     numInStock: number;
     attributes: {
@@ -19,7 +20,6 @@ export interface JewelleryAttributes {
         type: 'Drops' | 'Hoops' | 'Jhumka' | 'Studs' | 'Others';
         metalColour: 'Rose' | 'White' | 'White and Rose'
     },
-    image_id: string;
 }
 
 export interface PriceBreakdown {

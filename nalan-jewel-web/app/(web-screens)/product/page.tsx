@@ -116,7 +116,7 @@ export default function Product() {
     const [jewelleryImageFetched, setJewelleryImageFetched] = useState<boolean>(false);
 
     const searchParams = useSearchParams();
-    const image_id = searchParams.get('image_id');
+    const product_id = searchParams.get('product_id');
 
     useEffect(() => {
         const fetchJewelleryImages = async () => {
@@ -129,7 +129,7 @@ export default function Product() {
                     const { data } = await supabase
                         .storage
                         .from('jewellery-images')
-                        .exists(`med-res/${image_id}/${numImages + 1}.svg`);
+                        .exists(`med-res/${product_id}/${numImages + 1}.svg`);
 
                     if (!data) {
                         continueChecking = false;
@@ -141,9 +141,9 @@ export default function Product() {
                 // Create array of image objects
                 const images = Array.from({ length: numImages }, (_, i) => ({
                     id: i + 1,
-                    thumbnail: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i + 1}.svg`,
-                    fullSize: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${image_id}/${i + 1}.svg`,
-                    alt: `${image_id}'s ${i + 1} image`
+                    thumbnail: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${product_id}/${i + 1}.svg`,
+                    fullSize: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${product_id}/${i + 1}.svg`,
+                    alt: `${product_id}'s ${i + 1} image`
                 }));
 
                 setJewelleryImages(images);
@@ -159,7 +159,7 @@ export default function Product() {
         if (jewelleryImages.length === 0) {
             fetchJewelleryImages();
         }
-    }, [image_id]);
+    }, [product_id]);
 
     if (!isLoading) {
         return (
