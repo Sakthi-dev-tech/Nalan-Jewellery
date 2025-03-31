@@ -26,15 +26,18 @@ export interface PriceBreakdown {
     productDetail: string;
     productIcon?: string;
     productSubtitle?: string;
-    rate: {
-        value: number;
-        unit: string;
-    };
-    weight: {
+    weight?: {
         carat?: number;
         gram: number;
     };
     discount: number;
     value: number;
     isTotal?: boolean;
+}
+
+export interface MetalRates {
+    [metal_name: string]: {
+        rate: string;
+        unit: string;
+    };
 }
