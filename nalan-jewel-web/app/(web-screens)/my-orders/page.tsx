@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { supabase } from "@/libs/supabase-client";
+import LoadingBuffer from "@/app/components/LoadingBuffer";
 
 interface OrderItem {
     id: string;
@@ -32,6 +33,8 @@ export default function MyOrder() {
     const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
     const { isLoggedIn, user } = useAuth();
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const fetchUserOrderedItems = async () => {
         try {
             const { data, error } = await supabase
@@ -51,8 +54,15 @@ export default function MyOrder() {
     }
 
     useEffect(() => {
-        if (isLoggedIn && user) {
-            fetchUserOrderedItems();
+        setIsLoading(true);
+        try {
+            if (isLoggedIn && user) {
+                fetchUserOrderedItems();
+            }
+        } catch (error) {
+            throw error;
+        } finally {
+            setIsLoading(false);
         }
     }, [isLoggedIn]);
 
@@ -64,64 +74,71 @@ export default function MyOrder() {
                     <CategoryNavigation />
                 </div>
 
-                <div className="w-full max-w-4xl px-4 mt-8">
-                    <h1 className="text-3xl font-semibold mb-8">My Orders</h1>
+                {
+                    isLoading ? (
+                        <LoadingBuffer />
+                    ) : (
 
-                    <div className="space-y-6">
-                        {orderItems.map((order, index) => (
-                            <motion.div
-                                key={order.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                className="bg-white rounded-lg shadow-md overflow-hidden"
-                            >
-                                <div className="p-6">
-                                    <div className="flex items-start gap-6">
-                                        <Link href='/product'>
-                                            <motion.img
-                                                whileHover={{ scale: 1.05 }}
-                                                src={`${jewelleryImagesURL}/med-res/${order.imageID}/1.svg`}
-                                                alt={order.productName}
-                                                className="w-24 h-24 object-cover rounded-md"
-                                            />
-                                        </Link>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                    <h3 className="text-lg font-semibold">{order.productName}</h3>
-                                                    <p className="text-sm text-gray-600">Order ID: {order.id}</p>
-                                                    <p className="text-sm text-gray-600">
-                                                        Ordered on {new Date(order.orderDate).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-lg font-bold">${order.price.toLocaleString()}</p>
-                                                    <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+                        <div className="w-full max-w-4xl px-4 mt-8">
+                            <h1 className="text-3xl font-semibold mb-8">My Orders</h1>
+
+                            <div className="space-y-6">
+                                {orderItems.map((order, index) => (
+                                    <motion.div
+                                        key={order.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="bg-white rounded-lg shadow-md overflow-hidden"
+                                    >
+                                        <div className="p-6">
+                                            <div className="flex items-start gap-6">
+                                                <Link href='/product'>
+                                                    <motion.img
+                                                        whileHover={{ scale: 1.05 }}
+                                                        src={`${jewelleryImagesURL}/med-res/${order.imageID}/1.svg`}
+                                                        alt={order.productName}
+                                                        className="w-24 h-24 object-cover rounded-md"
+                                                    />
+                                                </Link>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h3 className="text-lg font-semibold">{order.productName}</h3>
+                                                            <p className="text-sm text-gray-600">Order ID: {order.id}</p>
+                                                            <p className="text-sm text-gray-600">
+                                                                Ordered on {new Date(order.orderDate).toLocaleDateString()}
+                                                            </p>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <p className="text-lg font-bold">${order.price.toLocaleString()}</p>
+                                                            <p className="text-sm text-gray-600">Quantity: {order.quantity}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-4 flex items-center justify-between">
+                                                        <span className={`px-3 py-1 rounded-full text-sm ${statusColors[order.status]}`}>
+                                                            {order.status}
+                                                        </span>
+                                                    </div>
+
+                                                    {order.estimatedDelivery && (
+                                                        <p className="mt-2 text-sm text-gray-600">
+                                                            {order.status !== "Delivered" ?
+                                                                `Estimated Delivery: ${new Date(order.estimatedDelivery).toLocaleDateString()}` :
+                                                                `Delivered on: ${new Date(order.estimatedDelivery).toLocaleDateString()}`
+                                                            }
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
-
-                                            <div className="mt-4 flex items-center justify-between">
-                                                <span className={`px-3 py-1 rounded-full text-sm ${statusColors[order.status]}`}>
-                                                    {order.status}
-                                                </span>
-                                            </div>
-
-                                            {order.estimatedDelivery && (
-                                                <p className="mt-2 text-sm text-gray-600">
-                                                    {order.status !== "Delivered" ? 
-                                                        `Estimated Delivery: ${new Date(order.estimatedDelivery).toLocaleDateString()}` : 
-                                                        `Delivered on: ${new Date(order.estimatedDelivery).toLocaleDateString()}`
-                                                    }
-                                                </p>
-                                            )}
                                         </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    )
+                }
             </main>
         </>
     );
