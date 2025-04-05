@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import Navbar from "../../components/Navbar";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { supabase } from "@/libs/supabase-client";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 interface CartItem {
     id: number;
@@ -16,30 +18,13 @@ interface CartItem {
     modifications?: string;
 }
 
-const initialCartItems: CartItem[] = [
-    {
-        id: 1,
-        name: "Gold Stud Earrings",
-        price: 12500,
-        quantity: 1,
-        maxQuantity: 5,
-        coverImage: "/images/sample_jewel_1.svg",
-        modifications: ''
-    },
-    {
-        id: 2,
-        name: "Gold Stud",
-        price: 12500,
-        quantity: 1,
-        maxQuantity: 5,
-        coverImage: "/images/Sample_Jewel_2.svg",
-        modifications: ''
-    },
-];
-
+const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL
 export default function Cart() {
-    const [cartItems, setCartItems] = useState<CartItem[]>(initialCartItems);
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
+    const [IDArray, setIDArray] = useState<number[]>([]);
+
+    const { isLoggedIn, user } = useAuth()
 
     const handleQuantityChange = (id: number, newQuantity: number) => {
         setCartItems(items =>
@@ -55,9 +40,22 @@ export default function Cart() {
         setItemToDelete(item);
     };
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (itemToDelete) {
             setCartItems(items => items.filter(item => item.id !== itemToDelete.id));
+
+            const { error } = await supabase
+                .from('Cart')
+                .update({
+                    id_of_jewels: IDArray.filter(id => id !== itemToDelete.id)
+                })
+                .eq('user_id', user?.id);
+
+            if (error) {
+                window.location.href = `/error?code=500&message=${encodeURIComponent('Error Deleting Item from Cart')}`;
+                return;
+            }
+
             setItemToDelete(null);
         }
     };
@@ -74,6 +72,59 @@ export default function Cart() {
     };
 
     const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    const fetchJewelleriesWithIDs = async (id_array: number[]) => {
+        const { data, error } = await supabase
+            .from('Jewellery Data')
+            .select('*')
+            .in('id', id_array);
+
+        if (error) {
+            console.error('Error fetching jewellery data:', error);
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Fetching Jewellery Data')}`;
+            return;
+        }
+
+        if (data) {
+            setCartItems(prev => {
+                const newItems = data.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: 1,
+                    maxQuantity: item.numInStock,
+                    inStock: item.numInStock > 0,
+                    coverImage: `${jewelleryImagesURL}/med-res/${item.id}/1.svg`,
+                    modifications: ''
+                }));
+                return [...newItems];
+            });
+        }
+    }
+
+    const fetchUserCartItems = async () => {
+        if (!user) return;
+
+        const { data, error } = await supabase
+            .from('Cart')
+            .select('id_of_jewels')
+            .eq('user_id', user.id);
+
+        if (error) {
+            console.error('Error fetching cart items:', error);
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Fetching Your Cart Items')}`;
+            return;
+        }
+
+        if (data) {
+            fetchJewelleriesWithIDs(data[0].id_of_jewels);
+            setIDArray(data[0].id_of_jewels);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserCartItems();
+    }, [isLoggedIn])
 
     return (
         <>

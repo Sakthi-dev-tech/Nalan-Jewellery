@@ -4,6 +4,9 @@ import Link from "next/link";
 import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import Navbar from "../../components/Navbar";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/app/contexts/AuthContext";
+import { supabase } from "@/libs/supabase-client";
 
 interface OrderItem {
     id: string;
@@ -13,44 +16,8 @@ interface OrderItem {
     status: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
     orderDate: string;
     estimatedDelivery?: string;
-    trackingNumber?: string;
-    image: string;
+    imageID: string;
 }
-
-const sampleOrders: OrderItem[] = [
-    {
-        id: "ORD001",
-        productName: "Gold Chain Necklace",
-        price: 45000,
-        quantity: 1,
-        status: "Delivered",
-        orderDate: "2024-02-15",
-        estimatedDelivery: "2024-02-25",
-        image: "/images/sample_jewel_1.svg"
-    },
-    {
-        id: "ORD002",
-        productName: "Diamond Stud Earrings",
-        price: 25000,
-        quantity: 2,
-        status: "Processing",
-        orderDate: "2024-02-10",
-        estimatedDelivery: "2024-02-20",
-        trackingNumber: "TRK123456789",
-        image: "/images/sample_jewel_2.svg"
-    },
-    {
-        id: "ORD003",
-        productName: "Diamond Stud Earrings",
-        price: 25000,
-        quantity: 2,
-        status: "Cancelled",
-        orderDate: "2024-02-10",
-        estimatedDelivery: "2024-02-20",
-        trackingNumber: "TRK123456789",
-        image: "/images/sample_jewel_3.svg"
-    }
-];
 
 const statusColors = {
     Processing: 'bg-yellow-100 text-yellow-800',
@@ -59,7 +26,36 @@ const statusColors = {
     Cancelled: 'bg-red-100 text-red-800'
 };
 
+const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL
 export default function MyOrder() {
+
+    const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+    const { isLoggedIn, user } = useAuth();
+
+    const fetchUserOrderedItems = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('User Orders')
+                .select('orders')
+                .eq('user_id', user?.id);
+
+            if (error) {
+                throw error;
+            }
+
+            setOrderItems(data[0].orders as OrderItem[]);
+        } catch (error) {
+            console.error('Error fetching user ordered items:', error);
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Fetching Your Orders')}`;
+        }
+    }
+
+    useEffect(() => {
+        if (isLoggedIn && user) {
+            fetchUserOrderedItems();
+        }
+    }, [isLoggedIn]);
+
     return (
         <>
             <Navbar />
@@ -72,7 +68,7 @@ export default function MyOrder() {
                     <h1 className="text-3xl font-semibold mb-8">My Orders</h1>
 
                     <div className="space-y-6">
-                        {sampleOrders.map((order, index) => (
+                        {orderItems.map((order, index) => (
                             <motion.div
                                 key={order.id}
                                 initial={{ opacity: 0, y: 20 }}
@@ -85,7 +81,7 @@ export default function MyOrder() {
                                         <Link href='/product'>
                                             <motion.img
                                                 whileHover={{ scale: 1.05 }}
-                                                src={order.image}
+                                                src={`${jewelleryImagesURL}/med-res/${order.imageID}/1.svg`}
                                                 alt={order.productName}
                                                 className="w-24 h-24 object-cover rounded-md"
                                             />
@@ -109,11 +105,6 @@ export default function MyOrder() {
                                                 <span className={`px-3 py-1 rounded-full text-sm ${statusColors[order.status]}`}>
                                                     {order.status}
                                                 </span>
-                                                {order.trackingNumber && (
-                                                    <p className="text-sm text-gray-600">
-                                                        Tracking: {order.trackingNumber}
-                                                    </p>
-                                                )}
                                             </div>
 
                                             {order.estimatedDelivery && (
