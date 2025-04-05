@@ -2,15 +2,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NunitoSans } from '@/public/fonts/fonts';
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { SignInSignUpLogic } from '../functions/SignUpSignInLogic';
 import { supabase } from '@/libs/supabase-client';
 import { AuthModal } from './AuthModal';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const {isLoggedIn, user } = useAuth();
 
   // First add this after your existing useState declarations
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -36,30 +37,15 @@ export default function Navbar() {
 
 
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setIsLoggedIn(!!user);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth event:', event, 'Session:', session);
-      setIsLoggedIn(!!session);
-
-      if (!!session) {
-        // if logged in, close all auth modals
+    // Check if the user is logged in when the component mounts
+      if (!!isLoggedIn) {
         setShowAgentModal(false);
         setShowSignInModal(false);
         setShowSignUpModal(false);
       }
-    });
 
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Authentication Modal
+  }, [isLoggedIn]);
   
-
   return (
     <nav className="fixed top-0 w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-40% to-[#a5a9aa] to-100% select-none z-50">
       <div className="container mx-auto flex h-full items-center">

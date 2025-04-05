@@ -5,11 +5,12 @@ import CategoryNavigation from "../../components/CategoryNavigationForHome";
 import Navbar from "../../components/Navbar";
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useState } from 'react';
+import { supabase } from "@/libs/supabase-client";
 
 interface WishlistItems {
     name: string;
-    price: string;
-    inStock: boolean;
+    price?: string;
+    inStock?: boolean;
     addedDate: Date;
     coverImage: string;
 }

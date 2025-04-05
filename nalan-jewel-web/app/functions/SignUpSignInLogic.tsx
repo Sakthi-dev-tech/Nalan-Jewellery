@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/libs/supabase-client";
+import { toast } from "react-hot-toast";
 
 export class SignInSignUpLogic {
     async SignUpUsingEmail(email: string, password: string) {
@@ -25,7 +26,11 @@ export class SignInSignUpLogic {
                 password,
             });
     
-            if (error) throw error;
+            if (error) {
+                toast.error(error.message.replace(/(^\w|\s\w)/g, m => m.toUpperCase()));
+                throw error;
+            }
+            
             return { data, error: null };
         } catch (error) {
             console.error('Sign in error:', error);
@@ -44,10 +49,10 @@ export class SignInSignUpLogic {
     async SignOutUser() {
         try {
             const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-
-            // Clear remembered user on sign out
-            localStorage.removeItem('rememberedUser');
+            if (error) {
+                toast.error(error.message.replace(/(^\w|\s\w)/g, m => m.toUpperCase()));
+                throw error;
+            }
 
             return { error: null };
         } catch (error) {

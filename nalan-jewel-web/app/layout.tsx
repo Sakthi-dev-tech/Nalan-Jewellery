@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Donegal_One, Geist, Geist_Mono, Nunito_Sans } from "next/font/google";
 import "./styles/globals.css";
 import { Provider } from "@/components/ui/provider";
-import Footer from "./components/Footer";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,18 +39,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <head>
-        <link 
+        <link
           href="https://fonts.googleapis.com/icon?family=Material+Icons"
           rel="stylesheet"
-          />
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${donegalOne.variable} ${nunitoSans.variable} antialiased`}
       >
         <Provider>
-          {children}       
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </Provider>
       </body>
-    </html>
+    </html >
   );
 }
