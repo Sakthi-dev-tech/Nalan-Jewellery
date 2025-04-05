@@ -104,9 +104,9 @@ export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBrea
                         </div>
 
                         {/* Values Row */}
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-4 gap-4 sm:gap-2">
                             <div className="flex flex-col min-h-[48px]">
-                                <div className="flex-1">
+                                <div className="flex-1 px-0.5">
                                     <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
                                         {metalRates[row.productDetail]
                                             ? `$ ${metalRates[row.productDetail].rate} / ${metalRates[row.productDetail].unit}`
@@ -114,10 +114,10 @@ export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBrea
                                         }
                                     </span>
                                 </div>
-                                <div className="text-xs text-gray-400">RATE</div>
+                                <div className="text-xs text-gray-400 px-0.5">RATE</div>
                             </div>
                             <div className="flex flex-col min-h-[48px]">
-                                <div className="flex-1">
+                                <div className="flex-1 px-0.5">
                                     <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
                                         {row.weight
                                             ? (row.weight.carat
@@ -128,23 +128,23 @@ export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBrea
                                             : '-'}
                                     </span>
                                 </div>
-                                <div className="text-xs text-gray-400">WEIGHT</div>
+                                <div className="text-xs text-gray-400 px-0.5">WEIGHT</div>
                             </div>
                             <div className="flex flex-col min-h-[48px]">
-                                <div className="flex-1">
+                                <div className="flex-1 px-0.5">
                                     <span className="text-sm text-green-500 whitespace-nowrap">
                                         {row.discount !== 0 ? `$\u00A0${row.discount.toLocaleString()}` : ''}
                                     </span>
                                 </div>
-                                <div className="text-xs text-gray-400">DISCOUNT</div>
+                                <div className="text-xs text-gray-400 px-0.5">DISCOUNT</div>
                             </div>
                             <div className="flex flex-col min-h-[48px]">
-                                <div className="flex-1">
+                                <div className="flex-1 px-0.5">
                                     <span className={`text-sm font-medium whitespace-nowrap ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
                                         {`$\u00A0${row.value.toLocaleString()}`}
                                     </span>
                                 </div>
-                                <div className="text-xs text-gray-400">VALUE</div>
+                                <div className="text-xs text-gray-400 px-0.5">VALUE</div>
                             </div>
                         </div>
                     </div>
