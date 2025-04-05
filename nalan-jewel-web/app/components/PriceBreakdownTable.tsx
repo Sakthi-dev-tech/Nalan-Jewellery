@@ -8,7 +8,8 @@ interface PriceBreakdownTableProps {
 export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBreakdownTableProps) {
     return (
         <div className="w-full rounded-t-xl outline outline-2 outline-gray-200">
-            <div className="grid grid-cols-5 w-full text-center">
+            {/* Desktop View */}
+            <div className="hidden md:grid grid-cols-5 w-full text-center">
                 {/* Headers */}
                 <div className="contents">
                     {['PRODUCT DETAILS', 'RATE', 'WEIGHT', 'DISCOUNT', 'VALUE'].map((header) => (
@@ -20,7 +21,7 @@ export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBrea
                     ))}
                 </div>
 
-                {/* Table Rows */}
+                {/* Desktop Table Rows */}
                 {priceRows.map((row, index) => (
                     <div key={index} className="contents">
                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
@@ -64,14 +65,87 @@ export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBrea
                             </span>
                         </div>
                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                            <span className={`text-sm text-green-500`}>
-                                {row.discount !== 0 ? `$ ${row.discount.toLocaleString()}` : ''}
+                            <span className={`text-sm text-green-500 whitespace-nowrap`}>
+                                {row.discount !== 0 ? `$\u00A0${row.discount.toLocaleString()}` : ''}
                             </span>
                         </div>
                         <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                            <span className={`text-sm font-medium ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
-                                $ {row.value.toLocaleString()}
+                            <span className={`text-sm font-medium whitespace-nowrap ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
+                                {`$\u00A0${row.value.toLocaleString()}`}
                             </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Mobile View */}
+            <div className="md:hidden">
+                {priceRows.map((row, index) => (
+                    <div key={index} className={`p-4 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                        {/* Product Details Row */}
+                        <div className="flex items-center gap-2 mb-3">
+                            {row.productIcon && !row.isTotal && (
+                                <img
+                                    src={row.productIcon}
+                                    alt=""
+                                    className="w-5 h-5"
+                                />
+                            )}
+                            <div className="flex flex-col">
+                                <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                    {row.productDetail}
+                                </span>
+                                {row.productSubtitle && !row.isTotal && (
+                                    <span className="text-xs text-gray-400">
+                                        {row.productSubtitle}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Values Row */}
+                        <div className="grid grid-cols-4 gap-2">
+                            <div className="flex flex-col min-h-[48px]">
+                                <div className="flex-1">
+                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                        {metalRates[row.productDetail]
+                                            ? `$ ${metalRates[row.productDetail].rate} / ${metalRates[row.productDetail].unit}`
+                                            : row.isTotal ? '' : '-'
+                                        }
+                                    </span>
+                                </div>
+                                <div className="text-xs text-gray-400">RATE</div>
+                            </div>
+                            <div className="flex flex-col min-h-[48px]">
+                                <div className="flex-1">
+                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                        {row.weight
+                                            ? (row.weight.carat
+                                                ? `${row.weight.carat} ct/ ${row.weight.gram}g`
+                                                : row.weight.gram > 0
+                                                    ? `${row.weight.gram}g`
+                                                    : '')
+                                            : '-'}
+                                    </span>
+                                </div>
+                                <div className="text-xs text-gray-400">WEIGHT</div>
+                            </div>
+                            <div className="flex flex-col min-h-[48px]">
+                                <div className="flex-1">
+                                    <span className="text-sm text-green-500 whitespace-nowrap">
+                                        {row.discount !== 0 ? `$\u00A0${row.discount.toLocaleString()}` : ''}
+                                    </span>
+                                </div>
+                                <div className="text-xs text-gray-400">DISCOUNT</div>
+                            </div>
+                            <div className="flex flex-col min-h-[48px]">
+                                <div className="flex-1">
+                                    <span className={`text-sm font-medium whitespace-nowrap ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
+                                        {`$\u00A0${row.value.toLocaleString()}`}
+                                    </span>
+                                </div>
+                                <div className="text-xs text-gray-400">VALUE</div>
+                            </div>
                         </div>
                     </div>
                 ))}

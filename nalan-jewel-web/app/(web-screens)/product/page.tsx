@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "@/libs/supabase-client";
 import PriceBreakdownTable from "@/app/components/PriceBreakdownTable";
 import ProductDetailsTable from "@/app/components/ProductDetailsBreakdownTable";
+import LoadingBuffer from "@/app/components/LoadingBuffer";
 
 interface JewelleryImage {
     id: number;
@@ -76,8 +77,7 @@ export default function Product() {
     const searchParams = useSearchParams();
     const product_id = searchParams.get('product_id');
 
-    const [status, setStatus] = useState<'loading' | 'error' | 'success'>('loading');
-    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const fetchJewelleryImages = async () => {
         let numImages = 0;
@@ -177,7 +177,7 @@ export default function Product() {
 
     useEffect(() => {
         const fetchData = async () => {
-            setStatus("loading");
+            setIsLoading(true)
 
             try {
                 const [imagesResult, priceResult] = await Promise.all([
@@ -185,12 +185,11 @@ export default function Product() {
                     fetchPriceRows(),
                     fetchMetalRates()
                 ]);
-
-                setStatus("success");
             } catch (error) {
-                setStatus("error");
-                setError("Error fetching data. Please try again later.");
+                window.location.href = `/error?code=500&message=${encodeURIComponent('Error fetching data. Please try again later.')}`;
                 console.error(error);
+            } finally{
+                setIsLoading(false);
             }
         }
 
@@ -202,43 +201,23 @@ export default function Product() {
     return (
         <>
             <Navbar />
-            <main className="mt-[8vh] pb-36 flex flex-col items-center select-none">
-                {status === 'loading' && (
-                    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#927B0E]" />
-                        <p className="mt-4 text-gray-600">Loading product details...</p>
-                    </div>
+            <main className="mt-[8vh] pb-36 flex flex-col items-center select-none px-4 sm:px-6 lg:px-8">
+                {isLoading && (
+                    <LoadingBuffer />
                 )}
 
-                {status === 'error' && (
-                    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                        <div className="text-red-500 mb-4">
-                            <i className="material-icons text-5xl">error_outline</i>
-                        </div>
-                        <p className="text-gray-800 font-medium">Failed to load product</p>
-                        <p className="text-gray-600 mt-2">{error}</p>
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="mt-4 px-6 py-2 bg-[#927B0E] text-white rounded-full hover:bg-[#7d690c]"
-                        >
-                            Try Again
-                        </button>
-                    </div>
-                )}
-
-                {status === 'success' && (
-                    // ... your existing content ...
+                {!isLoading && (
                     <>
                         <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
                             <CategoryNavigation />
                         </div>
 
-                        <div className="mt-[5vh] w-full flex flex-row items-start justify-center gap-12 h-full">
-                            <div className="flex flex-col gap-4">
+                        <div className="mt-[5vh] w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 lg:gap-12 h-full">
+                            <div className="flex flex-col gap-4 w-full lg:w-auto">
                                 {/* Main Image */}
                                 <div
                                     onClick={() => setIsModalOpen(true)}
-                                    className="w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+                                    className="w-full lg:w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
                                 >
                                     <img
                                         src={jewelleryImages[selectedImageIndex].thumbnail}
@@ -248,13 +227,12 @@ export default function Product() {
                                 </div>
 
                                 {/* Thumbnails */}
-                                <div className="flex flex-row gap-2">
+                                <div className="flex flex-row gap-2 justify-center lg:justify-start flex-wrap">
                                     {jewelleryImages.map((image, index) => (
                                         <div
                                             key={image.id}
                                             onClick={() => setSelectedImageIndex(index)}
-                                            className={`w-20 h-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 ${selectedImageIndex === index ? 'border-[#927B0E]' : 'border-transparent'
-                                                }`}
+                                            className={`w-16 lg:w-20 h-16 lg:h-20 rounded-lg overflow-hidden cursor-pointer border-2 transition-all duration-200 ${selectedImageIndex === index ? 'border-[#927B0E]' : 'border-transparent'}`}
                                         >
                                             <img
                                                 src={image.thumbnail}
@@ -266,8 +244,8 @@ export default function Product() {
                                 </div>
                             </div>
 
-                            <div className="w-[40%] flex flex-col justify-start items-start gap-10 h-[auto]">
-                                <span className="font-[family-name:var(--font-donegal-one)] font-bold text-4xl">{jewelleryDetails['Product Details']['General Details']['Jewellery Name']}</span>
+                            <div className="w-full lg:w-[40%] flex flex-col justify-start items-start gap-6 lg:gap-10 px-4 lg:px-0">
+                                <span className="font-[family-name:var(--font-donegal-one)] font-bold text-2xl lg:text-4xl text-center lg:text-left w-full">{jewelleryDetails['Product Details']['General Details']['Jewellery Name']}</span>
                                 <span className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-60">{jewelleryDetails['Product Details']['Description']['description']}</span>
                             </div>
                         </div>
@@ -334,9 +312,9 @@ export default function Product() {
                             )}
                         </AnimatePresence>
 
-                        <span className="mt-10 font-bold text-4xl font-[family-name:var(--font-nunito-sans)]">Jewellery Details</span>
+                        <span className="mt-16 mb-8 font-bold text-3xl lg:text-4xl text-center font-[family-name:var(--font-nunito-sans)] w-full">Jewellery Details</span>
 
-                        <div className="mt-10 rounded-full bg-[#D9D9D9] w-[40%] h-20 overflow-hidden flex flex-row relative">
+                        <div className="mt-4 rounded-full bg-[#D9D9D9] w-[90%] lg:w-[40%] h-14 lg:h-16 overflow-hidden flex flex-row relative">
                             {/* Animated background */}
                             <motion.div
                                 className="absolute h-full w-[50%] bg-[#927B0E] rounded-full"
@@ -349,9 +327,9 @@ export default function Product() {
                             {/* Product Details Button */}
                             <div
                                 onClick={() => setActiveSection('details')}
-                                className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10`}
+                                className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10 cursor-pointer ${activeSection === 'details' ? 'text-white' : ''}`}
                             >
-                                <span className="text-2xl font-[family-name:var(--font-geist-sans)]">
+                                <span className="text-lg lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
                                     Product Details
                                 </span>
                             </div>
@@ -359,17 +337,17 @@ export default function Product() {
                             {/* Price Breakdown Button */}
                             <div
                                 onClick={() => setActiveSection('price')}
-                                className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10`}
+                                className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10 cursor-pointer ${activeSection === 'price' ? 'text-white' : ''}`}
                             >
-                                <span className="text-2xl font-[family-name:var(--font-geist-sans)]">
+                                <span className="text-lg lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
                                     Price Breakdown
                                 </span>
                             </div>
                         </div>
 
-                        {/* Table for Product Details */}
+                        {/* Table Content */}
                         <motion.div
-                            className="mt-8 w-[50%]"
+                            className="mt-8 w-[95%] lg:w-[60%] bg-white rounded-lg shadow-lg p-6"
                             initial={false}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
@@ -380,7 +358,6 @@ export default function Product() {
                                 />
                             )}
 
-                            {/* Table For Price Breakdown */}
                             {activeSection === 'price' && (
                                 <PriceBreakdownTable 
                                     metalRates={metalRates}
@@ -389,8 +366,8 @@ export default function Product() {
                             )}
                         </motion.div>
 
-                        <div className="w-[60%] mt-10 flex justify-evenly">
-                            <button className="w-[30%] h-14 bg-[#FB4C4C] text-black rounded-full hover:bg-[#791f1f] hover:scale-110 transition-all duration-300 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
+                        <div className="w-[90%] lg:w-[60%] mt-10 flex flex-col lg:flex-row gap-4 lg:gap-0 justify-evenly">
+                            <button className="w-full lg:w-[30%] h-14 bg-[#FB4C4C] text-black rounded-full hover:bg-[#791f1f] hover:scale-110 transition-all duration-300 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
                                 <div className="flex items-center justify-center gap-2">
                                     <img
                                         src="/heart.svg"
@@ -401,7 +378,7 @@ export default function Product() {
                                 </div>
                             </button>
 
-                            <button className="w-[30%] h-14 bg-[#7CA6AB] text-black rounded-full hover:bg-[#1a585f] transition-all duration-300 hover:scale-110 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
+                            <button className="w-full lg:w-[30%] h-14 bg-[#7CA6AB] text-black rounded-full hover:bg-[#1a585f] transition-all duration-300 hover:scale-110 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
                                 <div className="flex items-center justify-center gap-2">
                                     <img
                                         src="/book-appt-icon.svg"
@@ -414,17 +391,17 @@ export default function Product() {
                         </div>
 
                         {/* Fixed Bottom Bar for Add to Cart */}
-                        {!isModalOpen && <div className="fixed bottom-0 left-0 right-0 h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
-                            <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-8">
+                        {!isModalOpen && <div className="fixed bottom-0 left-0 right-0 h-20 lg:h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+                            <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 lg:px-8">
                                 <div className="flex flex-col">
-                                    <span className="text-sm text-gray-500">Total Price</span>
-                                    <span className="text-2xl font-bold">
+                                    <span className="text-xs lg:text-sm text-gray-500">Total Price</span>
+                                    <span className="text-xl lg:text-2xl font-bold">
                                         $ {priceRows.find(row => row.isTotal)?.value.toLocaleString() ?? '0'}
                                     </span>
                                 </div>
-                                <button className="bg-[#927B0E] text-white px-8 py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-3">
-                                    <img src="/shopping-cart.svg" className="aspect-auto h-5" />
-                                    <span>Add to Cart</span>
+                                <button className="bg-[#927B0E] text-white px-4 lg:px-8 py-2 lg:py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-2 lg:gap-3">
+                                    <img src="/shopping-cart.svg" className="aspect-auto h-4 lg:h-5" />
+                                    <span className="text-sm lg:text-base">Add to Cart</span>
                                 </button>
                             </div>
                         </div>

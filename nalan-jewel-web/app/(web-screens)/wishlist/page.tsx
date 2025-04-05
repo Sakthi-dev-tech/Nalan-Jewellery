@@ -157,7 +157,7 @@ export default function Wishlist() {
                                             layoutId={item.name}
                                             className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                                         >
-                                            <Link href='/product'>
+                                            <Link href={`/product?product_id=${item.id}`}>
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
                                                     transition={{ duration: 0.2 }}
