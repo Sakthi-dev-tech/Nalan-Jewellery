@@ -58,6 +58,8 @@ const jewelleryDetails: JewelleryDetailsType = {
     }
 }
 
+const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL as string;
+
 export default function Product() {
 
     
@@ -99,8 +101,8 @@ export default function Product() {
             // Create array of image objects
             const images = Array.from({ length: numImages }, (_, i) => ({
                 id: i + 1,
-                thumbnail: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${product_id}/${i + 1}.svg`,
-                fullSize: `https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${product_id}/${i + 1}.svg`,
+                thumbnail: `${jewelleryImagesURL}/med-res/${product_id}/${i + 1}.svg`,
+                fullSize: `${jewelleryImagesURL}/med-res/${product_id}/${i + 1}.svg`,
                 alt: `${product_id}'s ${i + 1} image`
             }));
 

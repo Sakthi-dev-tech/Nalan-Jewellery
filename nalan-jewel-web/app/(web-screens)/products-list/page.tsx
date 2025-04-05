@@ -39,10 +39,7 @@ const filterCategories: FilterOptions = {
 
 type ScrollDirection = "up" | "down";
 
-interface JewelleryImage {
-    imageUrl: string;
-    imageId: string;
-}
+const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL as string;
 
 export default function ProductsList() {
     const searchParams = useSearchParams();
@@ -90,9 +87,6 @@ export default function ProductsList() {
 
     // Fetch Jewellery List from Supabase
     const [JewelleryList, setJewelleryList] = useState<JewelleryAttributes[]>([]);
-
-    // Fetch Jewellery Images from Supabase
-    const [JewelleryImages, setJewelleryImages] = useState<JewelleryImage[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -281,7 +275,7 @@ export default function ProductsList() {
                                     <Link href={`/product?product_id=${jewellery.id}`}>
                                         <div className="relative">
                                             <img
-                                                src={`https://pyrrtmfuhegspmqgbzrk.supabase.co/storage/v1/object/public/jewellery-images/med-res/${jewellery.id}/1.svg`}
+                                                src={`${jewelleryImagesURL}/med-res/${jewellery.id}/1.svg`}
                                                 alt={jewellery.name}
                                                 className="w-full h-64 object-cover"
                                             />
