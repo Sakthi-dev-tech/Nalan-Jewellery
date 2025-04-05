@@ -7,6 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MetalRates, PriceBreakdown } from "@/app/interfaces/JewelleryAttributes";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/libs/supabase-client";
+import PriceBreakdownTable from "@/app/components/PriceBreakdownTable";
+import ProductDetailsTable from "@/app/components/ProductDetailsBreakdownTable";
 
 interface JewelleryImage {
     id: number;
@@ -15,12 +17,12 @@ interface JewelleryImage {
     alt: string;
 }
 
-interface BaseDetails {
+export interface BaseDetails {
     icon: string;
     [key: string]: string | number;
 }
 
-interface JewelleryDetailsType {
+export interface JewelleryDetailsType {
     'Product Details': {
         [key: string]: BaseDetails;
     };
@@ -58,7 +60,7 @@ const jewelleryDetails: JewelleryDetailsType = {
 
 export default function Product() {
 
-    const [expandedSection, setExpandedSection] = useState<string | null>(null);
+    
     const [activeSection, setActiveSection] = useState<'details' | 'price'>('details');
 
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -371,154 +373,17 @@ export default function Product() {
                             transition={{ duration: 0.3 }}
                         >
                             {activeSection === 'details' && (
-                                <div className="space-y-0 w-full">
-                                    {Object.entries(jewelleryDetails['Product Details']).map(([sectionTitle, details]) => (
-                                        <div key={sectionTitle} className="w-full">
-                                            {/* Section Header */}
-                                            <motion.div
-                                                onClick={() => setExpandedSection(expandedSection === sectionTitle ? null : sectionTitle)}
-                                                className="w-full flex items-center justify-between p-4 bg-gray-100 hover:bg-gray-100 rounded-md cursor-pointer"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    {details.icon && (
-                                                        <img src={details.icon} alt="" className="w-6 h-6" />
-                                                    )}
-                                                    <span className="text-lg font-semibold">{sectionTitle}</span>
-                                                </div>
-                                                <motion.div
-                                                    animate={{ rotate: expandedSection === sectionTitle ? 180 : 0 }}
-                                                    transition={{ duration: 0.3 }}
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        className="h-5 w-5"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M19 9l-7 7-7-7"
-                                                        />
-                                                    </svg>
-                                                </motion.div>
-                                            </motion.div>
-
-                                            {/* Expandable Content */}
-                                            <AnimatePresence>
-                                                {expandedSection === sectionTitle && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3 }}
-                                                        className="overflow-hidden bg-gray-100"
-                                                    >
-                                                        <div className="p-4">
-                                                            {sectionTitle === 'Description' ? (
-                                                                // Description layout
-                                                                <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                                                                    {(details as BaseDetails)['description']}
-                                                                </p>
-                                                            ) : (
-                                                                // Regular details layout
-                                                                <div className="grid grid-cols-3 gap-6">
-                                                                    {Object.entries(details).map(([key, value]) => (
-                                                                        key !== 'icon' && (
-                                                                            <div
-                                                                                key={key}
-                                                                                className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg"
-                                                                            >
-                                                                                <span className="text-lg font-bold text-center">{value}</span>
-                                                                                <span className="text-sm text-gray-500 mt-1">{key}</span>
-                                                                            </div>
-                                                                        )
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                    ))}
-                                </div>
+                                <ProductDetailsTable 
+                                    jewelleryDetails={jewelleryDetails}
+                                />
                             )}
 
                             {/* Table For Price Breakdown */}
                             {activeSection === 'price' && (
-                                <div className="w-full rounded-t-xl outline outline-2 outline-gray-200">
-                                    <div className="grid grid-cols-5 w-full text-center">
-                                        {/* Headers */}
-                                        <div className="contents">
-                                            {['PRODUCT DETAILS', 'RATE', 'WEIGHT', 'DISCOUNT', 'VALUE'].map((header) => (
-                                                <div key={header} className="py-4 px-2 border-b border-gray-200">
-                                                    <span className="text-sm font-bold text-gray-500">
-                                                        {header}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Table Rows */}
-                                        {priceRows.map((row, index) => (
-                                            <div key={index} className="contents">
-                                                <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        {row.productIcon && !row.isTotal && (
-                                                            <img
-                                                                src={row.productIcon}
-                                                                alt=""
-                                                                className="w-5 h-5"
-                                                            />
-                                                        )}
-                                                        <div className="flex flex-col items-center">
-                                                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
-                                                                {row.productDetail}
-                                                            </span>
-                                                            {row.productSubtitle && !row.isTotal && (
-                                                                <span className="text-xs text-gray-400">
-                                                                    {row.productSubtitle}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
-                                                        {metalRates[row.productDetail]
-                                                            ? `$ ${metalRates[row.productDetail].rate} / ${metalRates[row.productDetail].unit}`
-                                                            : '-'
-                                                        }
-                                                    </span>
-                                                </div>
-                                                <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
-                                                        {row.weight
-                                                            ? (row.weight.carat
-                                                                ? `${row.weight.carat} ct/ ${row.weight.gram}g`
-                                                                : row.weight.gram > 0
-                                                                    ? `${row.weight.gram}g`
-                                                                    : '')
-                                                            : '-'}
-                                                    </span>
-                                                </div>
-                                                <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                                    <span className={`text-sm text-green-500`}>
-                                                        {row.discount !== 0 ? `$ ${row.discount.toLocaleString()}` : ''}
-                                                    </span>
-                                                </div>
-                                                <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
-                                                    <span className={`text-sm font-medium ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
-                                                        $ {row.value.toLocaleString()}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                <PriceBreakdownTable 
+                                    metalRates={metalRates}
+                                    priceRows={priceRows}
+                                />
                             )}
                         </motion.div>
 

@@ -1,0 +1,81 @@
+import { MetalRates, PriceBreakdown } from "@/app/interfaces/JewelleryAttributes";
+
+interface PriceBreakdownTableProps {
+    priceRows: PriceBreakdown[];
+    metalRates: MetalRates;
+}
+
+export default function PriceBreakdownTable({ priceRows, metalRates }: PriceBreakdownTableProps) {
+    return (
+        <div className="w-full rounded-t-xl outline outline-2 outline-gray-200">
+            <div className="grid grid-cols-5 w-full text-center">
+                {/* Headers */}
+                <div className="contents">
+                    {['PRODUCT DETAILS', 'RATE', 'WEIGHT', 'DISCOUNT', 'VALUE'].map((header) => (
+                        <div key={header} className="py-4 px-2 border-b border-gray-200">
+                            <span className="text-sm font-bold text-gray-500">
+                                {header}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Table Rows */}
+                {priceRows.map((row, index) => (
+                    <div key={index} className="contents">
+                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                            <div className="flex items-center justify-center gap-2">
+                                {row.productIcon && !row.isTotal && (
+                                    <img
+                                        src={row.productIcon}
+                                        alt=""
+                                        className="w-5 h-5"
+                                    />
+                                )}
+                                <div className="flex flex-col items-center">
+                                    <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                        {row.productDetail}
+                                    </span>
+                                    {row.productSubtitle && !row.isTotal && (
+                                        <span className="text-xs text-gray-400">
+                                            {row.productSubtitle}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                {metalRates[row.productDetail]
+                                    ? `$ ${metalRates[row.productDetail].rate} / ${metalRates[row.productDetail].unit}`
+                                    : row.isTotal ? '' : '-'
+                                }
+                            </span>
+                        </div>
+                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                            <span className={`text-sm ${row.isTotal ? 'text-gray-800' : 'text-gray-600'}`}>
+                                {row.weight
+                                    ? (row.weight.carat
+                                        ? `${row.weight.carat} ct/ ${row.weight.gram}g`
+                                        : row.weight.gram > 0
+                                            ? `${row.weight.gram}g`
+                                            : '')
+                                    : '-'}
+                            </span>
+                        </div>
+                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                            <span className={`text-sm text-green-500`}>
+                                {row.discount !== 0 ? `$ ${row.discount.toLocaleString()}` : ''}
+                            </span>
+                        </div>
+                        <div className={`py-4 px-2 border-b border-gray-200 ${row.isTotal ? 'bg-gray-100 font-semibold' : ''}`}>
+                            <span className={`text-sm font-medium ${row.isTotal ? 'text-gray-800' : 'text-gray-900'}`}>
+                                $ {row.value.toLocaleString()}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
