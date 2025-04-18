@@ -19,51 +19,17 @@ interface JewelleryImage {
 }
 
 export interface BaseDetails {
-    icon: string;
+    "icon": string;
     [key: string]: string | number;
 }
 
 export interface JewelleryDetailsType {
-    'Product Details': {
-        [key: string]: BaseDetails;
-    };
-}
-
-const jewelleryDetails: JewelleryDetailsType = {
-    'Product Details': {
-        'Metal Details': {
-            icon: '/file.svg',
-            'Karratage': '22K',
-            'Material Colour': 'Yellow Gold',
-            'Gross Weight': '5.902g',
-            'Metal': 'Gold',
-            'Height': '16mm',
-            'Width': '18mm'
-        },
-
-        'General Details': {
-            icon: '/globe.svg',
-            'Jewellery Name': "Sample Jewellery",
-            'Jewellery Type': 'Gold Jewellery',
-            'Product Type': 'Studs',
-            'Brand': "Nalan Jewel",
-            'Collection': 'Nalan Jewel Collection',
-            'Gender': 'Women',
-            'Occassion': 'Traditional and Ethnic Wear'
-        },
-
-        'Description': {
-            icon: '/window.svg',
-            'description': 'These gorgeous 22 Karat gold studs feature a round base accented with artistic cutout and bead detailing.\n\nThe ornate artistry of these stud earrings is enough to elevate the beauty of your traditional festive ensembles. Save this pair for grand festivities and auspicious celebrations.'
-        }
-    }
+    [key: string]: BaseDetails;
 }
 
 const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL as string;
 
 export default function Product() {
-
-    
     const [activeSection, setActiveSection] = useState<'details' | 'price'>('details');
 
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -73,6 +39,8 @@ export default function Product() {
 
     const [priceRows, setPriceRows] = useState<PriceBreakdown[]>([]);
     const [metalRates, setMetalRates] = useState<MetalRates>({});
+
+    const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetailsType | undefined>(undefined);
 
     const searchParams = useSearchParams();
     const product_id = searchParams.get('product_id');
@@ -155,9 +123,9 @@ export default function Product() {
             const { data, error } = await supabase
                 .from("Rates")
                 .select("*");
-    
+
             if (error) throw error;
-    
+
             if (data) {
                 const ratesObject: MetalRates = data.reduce((acc, item) => ({
                     ...acc,
@@ -166,7 +134,7 @@ export default function Product() {
                         unit: item.unit
                     }
                 }), {} as MetalRates);
-                
+
                 setMetalRates(ratesObject);
             }
         } catch (error) {
@@ -175,20 +143,42 @@ export default function Product() {
         }
     };
 
+    const fetchProductDetails = async () => {
+        try {
+            const { data, error } = await supabase
+                .from("Jewellery Data")
+                .select("product_details")
+                .eq('id', product_id);  // Add this condition to fetch specific product details
+
+            if (error) throw error;
+            
+            if (data && data.length > 0) {
+                setJewelleryDetails(data[0].product_details);
+            } else {
+                console.error("No product details found for:", product_id);
+                throw Error('No product details found');
+            }
+        } catch (e) {
+            console.error("Error while fetching product details:", e);
+            throw e;
+        }
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true)
 
             try {
-                const [imagesResult, priceResult] = await Promise.all([
+                await Promise.all([
                     fetchJewelleryImages(),
                     fetchPriceRows(),
-                    fetchMetalRates()
+                    fetchMetalRates(),
+                    fetchProductDetails()
                 ]);
             } catch (error) {
-                window.location.href = `/error?code=500&message=${encodeURIComponent('Error fetching data. Please try again later.')}`;
                 console.error(error);
-            } finally{
+                window.location.href = `/error?code=500&message=${encodeURIComponent('Error fetching data. Please try again later.')}`;
+            } finally {
                 setIsLoading(false);
             }
         }
@@ -205,13 +195,13 @@ export default function Product() {
                 {isLoading && (
                     <LoadingBuffer />
                 )}
-
+    
                 {!isLoading && (
                     <>
                         <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
                             <CategoryNavigation />
                         </div>
-
+    
                         <div className="mt-[5vh] w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 lg:gap-12 h-full">
                             <div className="flex flex-col gap-4 w-full lg:w-auto">
                                 {/* Main Image */}
@@ -219,13 +209,15 @@ export default function Product() {
                                     onClick={() => setIsModalOpen(true)}
                                     className="w-full lg:w-[500px] cursor-pointer hover:opacity-90 transition-opacity duration-200"
                                 >
-                                    <img
-                                        src={jewelleryImages[selectedImageIndex].thumbnail}
-                                        alt={jewelleryImages[selectedImageIndex].alt}
-                                        className="w-full aspect-auto object-contain rounded-lg"
-                                    />
+                                    {jewelleryImages.length > 0 && (
+                                        <img
+                                            src={jewelleryImages[selectedImageIndex].thumbnail}
+                                            alt={jewelleryImages[selectedImageIndex].alt}
+                                            className="w-full aspect-auto object-contain rounded-lg"
+                                        />
+                                    )}
                                 </div>
-
+    
                                 {/* Thumbnails */}
                                 <div className="flex flex-row gap-2 justify-center lg:justify-start flex-wrap">
                                     {jewelleryImages.map((image, index) => (
@@ -243,13 +235,17 @@ export default function Product() {
                                     ))}
                                 </div>
                             </div>
-
+    
                             <div className="w-full lg:w-[40%] flex flex-col justify-start items-start gap-6 lg:gap-10 px-4 lg:px-0">
-                                <span className="font-[family-name:var(--font-donegal-one)] font-bold text-2xl lg:text-4xl text-center lg:text-left w-full">{jewelleryDetails['Product Details']['General Details']['Jewellery Name']}</span>
-                                <span className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-60">{jewelleryDetails['Product Details']['Description']['description']}</span>
+                                <span className="font-[family-name:var(--font-donegal-one)] font-bold text-2xl lg:text-4xl text-center lg:text-left w-full">
+                                    {jewelleryDetails?.['General Details']?.['Jewellery Name'] || 'Product Name Unavailable'}
+                                </span>
+                                <span className="font-[family-name:var(--font-donegal-one)] font-thin text-sm opacity-60">
+                                    {jewelleryDetails?.['Description']?.['description'] || 'Description unavailable'}
+                                </span>
                             </div>
                         </div>
-
+    
                         {/* Image Modal */}
                         <AnimatePresence>
                             {isModalOpen && (
@@ -270,7 +266,7 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
-
+    
                                         {/* Navigation arrows */}
                                         <button
                                             onClick={(e) => {
@@ -283,7 +279,7 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </button>
-
+    
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -295,25 +291,27 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
                                         </button>
-
+    
                                         {/* Full-size image */}
-                                        <motion.img
-                                            key={selectedImageIndex}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            exit={{ opacity: 0, scale: 0.9 }}
-                                            src={jewelleryImages[selectedImageIndex].fullSize}
-                                            alt={jewelleryImages[selectedImageIndex].alt}
-                                            className="max-h-[90vh] max-w-[90vw] object-contain"
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
+                                        {jewelleryImages.length > 0 && (
+                                            <motion.img
+                                                key={selectedImageIndex}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 0.9 }}
+                                                src={jewelleryImages[selectedImageIndex].fullSize}
+                                                alt={jewelleryImages[selectedImageIndex].alt}
+                                                className="max-h-[90vh] max-w-[90vw] object-contain"
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        )}
                                     </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
+    
                         <span className="mt-16 mb-8 font-bold text-3xl lg:text-4xl text-center font-[family-name:var(--font-nunito-sans)] w-full">Jewellery Details</span>
-
+    
                         <div className="mt-4 rounded-full bg-[#D9D9D9] w-[90%] lg:w-[40%] h-14 lg:h-16 overflow-hidden flex flex-row relative">
                             {/* Animated background */}
                             <motion.div
@@ -323,7 +321,7 @@ export default function Product() {
                                 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             />
-
+    
                             {/* Product Details Button */}
                             <div
                                 onClick={() => setActiveSection('details')}
@@ -333,7 +331,7 @@ export default function Product() {
                                     Product Details
                                 </span>
                             </div>
-
+    
                             {/* Price Breakdown Button */}
                             <div
                                 onClick={() => setActiveSection('price')}
@@ -344,7 +342,7 @@ export default function Product() {
                                 </span>
                             </div>
                         </div>
-
+    
                         {/* Table Content */}
                         <motion.div
                             className="mt-8 w-[95%] lg:w-[60%] bg-white rounded-lg shadow-lg p-6"
@@ -352,20 +350,20 @@ export default function Product() {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
                         >
-                            {activeSection === 'details' && (
-                                <ProductDetailsTable 
+                            {activeSection === 'details' && jewelleryDetails !== undefined && (
+                                <ProductDetailsTable
                                     jewelleryDetails={jewelleryDetails}
                                 />
                             )}
-
-                            {activeSection === 'price' && (
-                                <PriceBreakdownTable 
+    
+                            {activeSection === 'price' && priceRows.length > 0 && Object.keys(metalRates).length > 0 && (
+                                <PriceBreakdownTable
                                     metalRates={metalRates}
                                     priceRows={priceRows}
                                 />
                             )}
                         </motion.div>
-
+    
                         <div className="w-[90%] lg:w-[60%] mt-10 flex flex-col lg:flex-row gap-4 lg:gap-0 justify-evenly">
                             <button className="w-full lg:w-[30%] h-14 bg-[#FB4C4C] text-black rounded-full hover:bg-[#791f1f] hover:scale-110 transition-all duration-300 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
                                 <div className="flex items-center justify-center gap-2">
@@ -377,7 +375,7 @@ export default function Product() {
                                     <span className="text-sm font-medium">Add to Wishlist</span>
                                 </div>
                             </button>
-
+    
                             <button className="w-full lg:w-[30%] h-14 bg-[#7CA6AB] text-black rounded-full hover:bg-[#1a585f] transition-all duration-300 hover:scale-110 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
                                 <div className="flex items-center justify-center gap-2">
                                     <img
@@ -389,27 +387,27 @@ export default function Product() {
                                 </div>
                             </button>
                         </div>
-
+    
                         {/* Fixed Bottom Bar for Add to Cart */}
-                        {!isModalOpen && <div className="fixed bottom-0 left-0 right-0 h-20 lg:h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
-                            <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 lg:px-8">
-                                <div className="flex flex-col">
-                                    <span className="text-xs lg:text-sm text-gray-500">Total Price</span>
-                                    <span className="text-xl lg:text-2xl font-bold">
-                                        $ {priceRows.find(row => row.isTotal)?.value.toLocaleString() ?? '0'}
-                                    </span>
+                        {!isModalOpen && priceRows.length > 0 && priceRows.find(row => row.isTotal) && (
+                            <div className="fixed bottom-0 left-0 right-0 h-20 lg:h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+                                <div className="max-w-7xl mx-auto h-full flex items-center justify-between px-4 lg:px-8">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs lg:text-sm text-gray-500">Total Price</span>
+                                        <span className="text-xl lg:text-2xl font-bold">
+                                            $ {priceRows.find(row => row.isTotal)?.value?.toLocaleString() ?? '0'}
+                                        </span>
+                                    </div>
+                                    <button className="bg-[#927B0E] text-white px-4 lg:px-8 py-2 lg:py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-2 lg:gap-3">
+                                        <img src="/shopping-cart.svg" className="aspect-auto h-4 lg:h-5" />
+                                        <span className="text-sm lg:text-base">Add to Cart</span>
+                                    </button>
                                 </div>
-                                <button className="bg-[#927B0E] text-white px-4 lg:px-8 py-2 lg:py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-2 lg:gap-3">
-                                    <img src="/shopping-cart.svg" className="aspect-auto h-4 lg:h-5" />
-                                    <span className="text-sm lg:text-base">Add to Cart</span>
-                                </button>
                             </div>
-                        </div>
-                        }
+                        )}
                     </>
                 )}
             </main>
         </>
     );
 }
-

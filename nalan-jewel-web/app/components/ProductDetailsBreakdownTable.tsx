@@ -10,7 +10,7 @@ export default function ProductDetailsTable({jewelleryDetails}: ProductDetailsTa
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
     return (<div className="space-y-0 w-full">
-        {Object.entries(jewelleryDetails['Product Details']).map(([sectionTitle, details]) => (
+        {Object.entries(jewelleryDetails).map(([sectionTitle, details]) => (
             <div key={sectionTitle} className="w-full">
                 {/* Section Header */}
                 <motion.div
@@ -18,8 +18,8 @@ export default function ProductDetailsTable({jewelleryDetails}: ProductDetailsTa
                     className="w-full flex items-center justify-between p-4 bg-gray-100 hover:bg-gray-100 rounded-md cursor-pointer"
                 >
                     <div className="flex items-center gap-3">
-                        {details.icon && (
-                            <img src={details.icon} alt="" className="w-6 h-6" />
+                        {details["icon"] && (
+                            <img src={details["icon"]} alt="" className="w-6 h-6" />
                         )}
                         <span className="text-lg font-semibold">{sectionTitle}</span>
                     </div>
