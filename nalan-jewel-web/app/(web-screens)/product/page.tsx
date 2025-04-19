@@ -191,6 +191,7 @@ export default function Product() {
             if (appendError) throw appendError;
         } catch (error) {
             console.error("Error while removing item from wishlist:", error);
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Wishlist')}`;
         } finally {
             setProductInWishlist(false)
         }
@@ -203,6 +204,7 @@ export default function Product() {
             if (appendError) throw appendError;
         } catch (error) {
             console.error("Error while appending item to wishlist:", error);
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Wishlist')}`;
         } finally {
             setProductInWishlist(true)
         }

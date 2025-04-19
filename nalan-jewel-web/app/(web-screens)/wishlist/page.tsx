@@ -33,11 +33,7 @@ export default function Wishlist() {
     
         // Update database
         const { error } = await supabase
-            .from('Wishlist')
-            .update({ 
-                id_of_jewels: IDArray.filter(id => id !== itemID)
-            })
-            .eq('user_id', user?.id);
+                .rpc('remove_jewel_from_wishlist', { product_id: Number(itemID), uid: user?.id });
     
         if (error) {
             window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Wishlist')}`;
