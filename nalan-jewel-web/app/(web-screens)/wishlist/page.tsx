@@ -87,6 +87,17 @@ export default function Wishlist() {
         }
     };
 
+    const handleAddToCart = async (id: number) => {
+        const { data, error } = await supabase
+            .from('Cart')
+            .insert({ 
+                user_id: user?.id, 
+                jewel_id: id,
+                quantity: 1,
+                modifications: ''
+            });
+    }
+
     useEffect(() => {
         fetchUserWishlist();
     }, [isLoggedIn])
@@ -197,6 +208,11 @@ export default function Wishlist() {
                                                             ? 'bg-[#927B0E] text-white hover:bg-[#7d690c]'
                                                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                                             }`}
+                                                        onClick={() => {
+                                                            // Add to card and remove it from wishlist
+                                                            handleAddToCart(item.id)
+                                                            removeWishlistItem(item.id, index)
+                                                        }}
                                                     >
                                                         Add to Cart
                                                     </button>

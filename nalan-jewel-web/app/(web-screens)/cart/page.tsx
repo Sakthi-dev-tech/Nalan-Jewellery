@@ -66,7 +66,7 @@ export default function Cart() {
             }
 
             if (data) {
-                console.log("Data: ",data)
+                console.log("Data: ", data)
             }
 
             setItemToDelete(null);
@@ -87,28 +87,27 @@ export default function Cart() {
     const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     const fetchJewelleries = async (cart_data: CartData[]) => {
-        cart_data.map( async (cart_item) => {
+        // fetch all details in parallel
+        const items = await Promise.all(cart_data.map(async ({ jewel_id, quantity, modifications }) => {
             const { data, error } = await supabase
-            .from('Jewellery Data')
-            .select('*')
-            .eq('id', cart_item.jewel_id);
+                .from('Jewellery Data')
+                .select('*')
+                .eq('id', jewel_id)
+                .single()
+            if (error || !data) throw error ?? new Error('No data')
+            return {
+                id: data.id,
+                name: data.name,
+                price: data.price,
+                quantity,
+                maxQuantity: data.numInStock,
+                coverImage: `${jewelleryImagesURL}/med-res/${data.id}/1.svg`,
+                modifications
+            } as CartItem
+        }))
 
-            if (data) {
-                setCartItems(prev => {
-                    const newItems = data.map((item: any) => ({
-                        id: item.id,
-                        name: item.name,
-                        price: item.price,
-                        quantity: cart_item.quantity,
-                        maxQuantity: item.numInStock,
-                        inStock: item.numInStock > 0,
-                        coverImage: `${jewelleryImagesURL}/med-res/${item.id}/1.svg`,
-                        modifications: cart_item.modifications
-                    }));
-                    return [...prev, ...newItems];
-                })
-            }
-        })
+        // *replace* the array, rather than append
+        setCartItems(items)
     }
 
     const fetchUserCartItems = async () => {
@@ -129,6 +128,19 @@ export default function Cart() {
             fetchJewelleries(data as CartData[]);
         }
     };
+
+    const handleModificationEdit = async (item_id: number, new_text: string) => {
+        const { data, error } = await supabase
+        .from('Cart')
+        .update({ modifications: new_text })
+        .eq('user_id', user?.id)
+        .eq('jewel_id', item_id)
+
+        if (error) {
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Modifications')}`;
+            return;
+        }
+    }
 
     useEffect(() => {
         const loadCartItems = async () => {
@@ -192,13 +204,16 @@ export default function Cart() {
                                                     placeholder="Add any modifications (optional)"
                                                     value={item.modifications || ''}
                                                     onChange={(e) => {
+
+                                                        handleModificationEdit(item.id, e.target.value)
+
                                                         setCartItems(items =>
                                                             items.map(cartItem =>
                                                                 cartItem.id === item.id
                                                                     ? { ...cartItem, modifications: e.target.value }
                                                                     : cartItem
                                                             )
-                                                        );
+                                                        );                                                     
                                                     }}
                                                     className="w-full h-20 px-3 py-2 text-sm text-gray-700 border rounded-md 
                       resize-none bg-white focus:outline-none focus:ring-1 
