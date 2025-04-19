@@ -10,6 +10,7 @@ import { supabase } from "@/libs/supabase-client";
 import PriceBreakdownTable from "@/app/components/PriceBreakdownTable";
 import ProductDetailsTable from "@/app/components/ProductDetailsBreakdownTable";
 import LoadingBuffer from "@/app/components/LoadingBuffer";
+import { useAuth } from "@/app/contexts/AuthContext";
 
 interface JewelleryImage {
     id: number;
@@ -30,6 +31,8 @@ export interface JewelleryDetailsType {
 const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL as string;
 
 export default function Product() {
+    const { isLoggedIn, user } = useAuth();
+
     const [activeSection, setActiveSection] = useState<'details' | 'price'>('details');
 
     const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
@@ -39,6 +42,8 @@ export default function Product() {
 
     const [priceRows, setPriceRows] = useState<PriceBreakdown[]>([]);
     const [metalRates, setMetalRates] = useState<MetalRates>({});
+
+    const [productInWishlist, setProductInWishlist] = useState<boolean>(false)
 
     const [jewelleryDetails, setJewelleryDetails] = useState<JewelleryDetailsType | undefined>(undefined);
 
@@ -151,7 +156,7 @@ export default function Product() {
                 .eq('id', product_id);  // Add this condition to fetch specific product details
 
             if (error) throw error;
-            
+
             if (data && data.length > 0) {
                 setJewelleryDetails(data[0].product_details);
             } else {
@@ -164,29 +169,70 @@ export default function Product() {
         }
     }
 
+    const checkIfProductInWishlist = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('Wishlist')
+                .select('id_of_jewels')
+                .eq('user_id', user?.id)
+                .contains('id_of_jewels', [product_id]);
+
+            setProductInWishlist(data?.length === 1 ? true : false)
+
+        } catch (error) {
+            console.error("Error while checking if product is in wishlist:", error);
+        }
+    }
+
+    const removeItemFromWishlist = async () => {
+        try {
+            const { error: appendError } = await supabase
+                .rpc('remove_jewel_from_wishlist', { product_id: Number(product_id), uid: user?.id });
+            if (appendError) throw appendError;
+        } catch (error) {
+            console.error("Error while removing item from wishlist:", error);
+        } finally {
+            setProductInWishlist(false)
+        }
+    }
+
+    const appendItemToWishlist = async () => {
+        try {
+            const { error: appendError } = await supabase
+                .rpc('append_jewel_in_wishlist', { product_id: Number(product_id), uid: user?.id });
+            if (appendError) throw appendError;
+        } catch (error) {
+            console.error("Error while appending item to wishlist:", error);
+        } finally {
+            setProductInWishlist(true)
+        }
+    }
+
+
     useEffect(() => {
+        // don’t run until we know both product_id _and_ user.id
+        if (!product_id || !user?.id) return
+
         const fetchData = async () => {
             setIsLoading(true)
-
             try {
                 await Promise.all([
                     fetchJewelleryImages(),
                     fetchPriceRows(),
                     fetchMetalRates(),
-                    fetchProductDetails()
-                ]);
-            } catch (error) {
-                console.error(error);
-                window.location.href = `/error?code=500&message=${encodeURIComponent('Error fetching data. Please try again later.')}`;
+                    fetchProductDetails(),
+                    checkIfProductInWishlist(),
+                ])
+            } catch (err) {
+                console.error(err)
+                // your error redirect…
             } finally {
-                setIsLoading(false);
+                setIsLoading(false)
             }
         }
 
-        if (product_id) {
-            fetchData();
-        }
-    }, [product_id])
+        fetchData()
+    }, [product_id, user?.id])
 
     return (
         <>
@@ -195,13 +241,13 @@ export default function Product() {
                 {isLoading && (
                     <LoadingBuffer />
                 )}
-    
+
                 {!isLoading && (
                     <>
                         <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
                             <CategoryNavigation />
                         </div>
-    
+
                         <div className="mt-[5vh] w-full flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 lg:gap-12 h-full">
                             <div className="flex flex-col gap-4 w-full lg:w-auto">
                                 {/* Main Image */}
@@ -217,7 +263,7 @@ export default function Product() {
                                         />
                                     )}
                                 </div>
-    
+
                                 {/* Thumbnails */}
                                 <div className="flex flex-row gap-2 justify-center lg:justify-start flex-wrap">
                                     {jewelleryImages.map((image, index) => (
@@ -235,7 +281,7 @@ export default function Product() {
                                     ))}
                                 </div>
                             </div>
-    
+
                             <div className="w-full lg:w-[40%] flex flex-col justify-start items-start gap-6 lg:gap-10 px-4 lg:px-0">
                                 <span className="font-[family-name:var(--font-donegal-one)] font-bold text-2xl lg:text-4xl text-center lg:text-left w-full">
                                     {jewelleryDetails?.['General Details']?.['Jewellery Name'] || 'Product Name Unavailable'}
@@ -245,7 +291,7 @@ export default function Product() {
                                 </span>
                             </div>
                         </div>
-    
+
                         {/* Image Modal */}
                         <AnimatePresence>
                             {isModalOpen && (
@@ -266,7 +312,7 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                             </svg>
                                         </button>
-    
+
                                         {/* Navigation arrows */}
                                         <button
                                             onClick={(e) => {
@@ -279,7 +325,7 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                                             </svg>
                                         </button>
-    
+
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -291,7 +337,7 @@ export default function Product() {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
                                         </button>
-    
+
                                         {/* Full-size image */}
                                         {jewelleryImages.length > 0 && (
                                             <motion.img
@@ -309,9 +355,9 @@ export default function Product() {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-    
+
                         <span className="mt-16 mb-8 font-bold text-3xl lg:text-4xl text-center font-[family-name:var(--font-nunito-sans)] w-full">Jewellery Details</span>
-    
+
                         <div className="mt-4 rounded-full bg-[#D9D9D9] w-[90%] lg:w-[40%] h-14 lg:h-16 overflow-hidden flex flex-row relative">
                             {/* Animated background */}
                             <motion.div
@@ -321,7 +367,7 @@ export default function Product() {
                                 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             />
-    
+
                             {/* Product Details Button */}
                             <div
                                 onClick={() => setActiveSection('details')}
@@ -331,7 +377,7 @@ export default function Product() {
                                     Product Details
                                 </span>
                             </div>
-    
+
                             {/* Price Breakdown Button */}
                             <div
                                 onClick={() => setActiveSection('price')}
@@ -342,7 +388,7 @@ export default function Product() {
                                 </span>
                             </div>
                         </div>
-    
+
                         {/* Table Content */}
                         <motion.div
                             className="mt-8 w-[95%] lg:w-[60%] bg-white rounded-lg shadow-lg p-6"
@@ -355,7 +401,7 @@ export default function Product() {
                                     jewelleryDetails={jewelleryDetails}
                                 />
                             )}
-    
+
                             {activeSection === 'price' && priceRows.length > 0 && Object.keys(metalRates).length > 0 && (
                                 <PriceBreakdownTable
                                     metalRates={metalRates}
@@ -363,19 +409,32 @@ export default function Product() {
                                 />
                             )}
                         </motion.div>
-    
+
                         <div className="w-[90%] lg:w-[60%] mt-10 flex flex-col lg:flex-row gap-4 lg:gap-0 justify-evenly">
                             <button className="w-full lg:w-[30%] h-14 bg-[#FB4C4C] text-black rounded-full hover:bg-[#791f1f] hover:scale-110 transition-all duration-300 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
-                                <div className="flex items-center justify-center gap-2">
-                                    <img
-                                        src="/heart.svg"
-                                        className="h-5 w-5 transition-transform"
-                                        alt=""
-                                    />
-                                    <span className="text-sm font-medium">Add to Wishlist</span>
-                                </div>
+                                {
+                                    productInWishlist ? (
+                                        <div onClick={async () => { removeItemFromWishlist() }} className="flex items-center justify-center gap-2">
+                                            <img
+                                                src="/heart_filled.svg"
+                                                className="h-5 w-5 transition-transform"
+                                                alt=""
+                                            />
+                                            <span className="text-sm font-medium">Already in Wishlist</span>
+                                        </div>
+                                    ) : (
+                                        <div onClick={async () => { appendItemToWishlist() }} className="flex items-center justify-center gap-2">
+                                            <img
+                                                src="/heart.svg"
+                                                className="h-5 w-5 transition-transform"
+                                                alt=""
+                                            />
+                                            <span className="text-sm font-medium">Add to Wishlist</span>
+                                        </div>
+                                    )
+                                }
                             </button>
-    
+
                             <button className="w-full lg:w-[30%] h-14 bg-[#7CA6AB] text-black rounded-full hover:bg-[#1a585f] transition-all duration-300 hover:scale-110 group shadow-[3px_4px_6px_-1px_rgba(0,0,0,0.5)]">
                                 <div className="flex items-center justify-center gap-2">
                                     <img
@@ -387,7 +446,7 @@ export default function Product() {
                                 </div>
                             </button>
                         </div>
-    
+
                         {/* Fixed Bottom Bar for Add to Cart */}
                         {!isModalOpen && priceRows.length > 0 && priceRows.find(row => row.isTotal) && (
                             <div className="fixed bottom-0 left-0 right-0 h-20 lg:h-24 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">

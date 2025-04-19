@@ -170,7 +170,7 @@ export default function Cart() {
                                         transition={{ duration: 0.3, delay: index * 0.1 }}
                                         className="flex gap-4 bg-[#F5F9FA] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                                     >
-                                        <Link href='/product'>
+                                        <Link href={`/product?product_id=${item.id}`}>
                                             <motion.img
                                                 whileHover={{ scale: 1.05 }}
                                                 src={item.coverImage}
