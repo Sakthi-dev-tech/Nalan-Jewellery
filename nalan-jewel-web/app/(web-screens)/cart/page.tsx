@@ -34,7 +34,19 @@ export default function Cart() {
     const { isLoggedIn, user } = useAuth()
     const [isLoading, setIsLoading] = useState(true);
 
-    const handleQuantityChange = (id: number, newQuantity: number) => {
+    const handleQuantityChange = async (id: number, newQuantity: number) => {
+
+        const { data, error } = await supabase
+        .from('Cart')
+        .update({ quantity: newQuantity })
+        .eq('user_id', user?.id)
+        .eq('jewel_id', id)
+
+        if (error) {
+            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Cart')}`;
+            return;
+        }
+
         setCartItems(items =>
             items.map(item =>
                 item.id === id
