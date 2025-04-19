@@ -19,6 +19,12 @@ interface CartItem {
     modifications?: string;
 }
 
+interface CartData {
+    jewel_id: number;
+    quantity: number;
+    modifications: string;
+}
+
 const jewelleryImagesURL = process.env.NEXT_PUBLIC_SUPABASE_JEWELLERY_IMAGES_URL
 export default function Cart() {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -46,16 +52,21 @@ export default function Cart() {
         if (itemToDelete) {
             setCartItems(items => items.filter(item => item.id !== itemToDelete.id));
 
-            const { error } = await supabase
+            console.log("User ID:", user?.id, "Item ID:", itemToDelete.id);
+
+            const { data, error } = await supabase
                 .from('Cart')
-                .update({
-                    id_of_jewels: IDArray.filter(id => id !== itemToDelete.id)
-                })
-                .eq('user_id', user?.id);
+                .delete()
+                .eq('user_id', user?.id)
+                .eq('jewel_id', itemToDelete.id)
 
             if (error) {
                 window.location.href = `/error?code=500&message=${encodeURIComponent('Error Deleting Item from Cart')}`;
                 return;
+            }
+
+            if (data) {
+                console.log("Data: ",data)
             }
 
             setItemToDelete(null);
@@ -75,33 +86,29 @@ export default function Cart() {
 
     const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-    const fetchJewelleriesWithIDs = async (id_array: number[]) => {
-        const { data, error } = await supabase
+    const fetchJewelleries = async (cart_data: CartData[]) => {
+        cart_data.map( async (cart_item) => {
+            const { data, error } = await supabase
             .from('Jewellery Data')
             .select('*')
-            .in('id', id_array);
+            .eq('id', cart_item.jewel_id);
 
-        if (error) {
-            console.error('Error fetching jewellery data:', error);
-            window.location.href = `/error?code=500&message=${encodeURIComponent('Error Fetching Jewellery Data')}`;
-            return;
-        }
-
-        if (data) {
-            setCartItems(prev => {
-                const newItems = data.map((item: any) => ({
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    quantity: 1,
-                    maxQuantity: item.numInStock,
-                    inStock: item.numInStock > 0,
-                    coverImage: `${jewelleryImagesURL}/med-res/${item.id}/1.svg`,
-                    modifications: ''
-                }));
-                return [...newItems];
-            });
-        }
+            if (data) {
+                setCartItems(prev => {
+                    const newItems = data.map((item: any) => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        quantity: cart_item.quantity,
+                        maxQuantity: item.numInStock,
+                        inStock: item.numInStock > 0,
+                        coverImage: `${jewelleryImagesURL}/med-res/${item.id}/1.svg`,
+                        modifications: cart_item.modifications
+                    }));
+                    return [...prev, ...newItems];
+                })
+            }
+        })
     }
 
     const fetchUserCartItems = async () => {
@@ -109,7 +116,7 @@ export default function Cart() {
 
         const { data, error } = await supabase
             .from('Cart')
-            .select('id_of_jewels')
+            .select('*')
             .eq('user_id', user.id);
 
         if (error) {
@@ -119,8 +126,7 @@ export default function Cart() {
         }
 
         if (data) {
-            fetchJewelleriesWithIDs(data[0].id_of_jewels);
-            setIDArray(data[0].id_of_jewels);
+            fetchJewelleries(data as CartData[]);
         }
     };
 
@@ -274,7 +280,7 @@ export default function Cart() {
                                         Cancel
                                     </button>
                                     <button
-                                        onClick={confirmDelete}
+                                        onClick={async () => await confirmDelete()}
                                         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
                                     >
                                         Remove
