@@ -212,28 +212,35 @@ export default function Product() {
 
 
     useEffect(() => {
-        // don’t run until we know both product_id _and_ user.id
-        if (!product_id || !user?.id) return
-
+        if (!product_id) {
+            console.log('Missing product_id');
+            return;
+        }
+    
         const fetchData = async () => {
-            setIsLoading(true)
+            setIsLoading(true);
             try {
+                // Fetch essential data first
                 await Promise.all([
                     fetchJewelleryImages(),
                     fetchPriceRows(),
                     fetchMetalRates(),
                     fetchProductDetails(),
-                    checkIfProductInWishlist(),
-                ])
+                ]);
+                
+                // Only check wishlist if user is logged in
+                if (user?.id) {
+                    await checkIfProductInWishlist();
+                }
             } catch (err) {
-                console.error(err)
-                // your error redirect…
+                console.error('Error:', err);
+                window.location.href = `/error?code=500&message=${encodeURIComponent('Error loading product data')}`;
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
         }
-
-        fetchData()
+    
+        fetchData();
     }, [product_id, user?.id])
 
     return (
