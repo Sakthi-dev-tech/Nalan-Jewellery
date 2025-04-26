@@ -11,6 +11,7 @@ import PriceBreakdownTable from "@/app/components/PriceBreakdownTable";
 import ProductDetailsTable from "@/app/components/ProductDetailsBreakdownTable";
 import LoadingBuffer from "@/app/components/LoadingBuffer";
 import { useAuth } from "@/app/contexts/AuthContext";
+import { Toaster, toast } from 'react-hot-toast';
 
 interface JewelleryImage {
     id: number;
@@ -198,18 +199,62 @@ export default function Product() {
     }
 
     const appendItemToWishlist = async () => {
+        if (!isLoggedIn) {
+            toast.error('Please log in to add items to your wishlist', {
+                duration: 3000,
+                position: 'top-center',
+                style: {
+                    background: '#34758f',
+                    color: '#fff',
+                },
+            }
+        )
+            return;
+        }
         try {
             const { error: appendError } = await supabase
                 .rpc('append_jewel_in_wishlist', { product_id: Number(product_id), uid: user?.id });
             if (appendError) throw appendError;
+
+            setProductInWishlist(true)
+            return;
         } catch (error) {
             console.error("Error while appending item to wishlist:", error);
             window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Wishlist')}`;
-        } finally {
-            setProductInWishlist(true)
         }
     }
 
+    const handleAddToCart = async () => {
+        if (!isLoggedIn) {
+            toast.error('Please log in to add items to your cart', {
+                duration: 3000,
+                position: 'top-center',
+                style: {
+                    background: '#34758f',
+                    color: '#fff',
+                },
+            });
+            return;
+        }
+
+        try {
+            const { error: appendError } = await supabase
+                .rpc('add_jewel_to_cart', { product_id: Number(product_id), uid: user?.id });
+            if (appendError) throw appendError;
+
+            toast.success('Item added to cart successfully!', {
+                duration: 3000,
+                position: 'top-center',
+                style: {
+                    background: '#34758f',
+                    color: '#fff',
+                },
+            });
+        } catch (error) {
+            //window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Wishlist')}`;
+            console.error("Error while appending item to wishlist:", error);
+        }
+        }
 
     useEffect(() => {
         if (!product_id) {
@@ -466,7 +511,7 @@ export default function Product() {
                                             $ {priceRows.find(row => row.isTotal)?.value?.toLocaleString() ?? '0'}
                                         </span>
                                     </div>
-                                    <button className="bg-[#927B0E] text-white px-4 lg:px-8 py-2 lg:py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-2 lg:gap-3">
+                                    <button onClick={() => handleAddToCart()} className="bg-[#927B0E] text-white px-4 lg:px-8 py-2 lg:py-3 rounded-full hover:bg-[#7d690c] transition-all duration-300 hover:scale-110 flex flex-row items-center justify-evenly gap-2 lg:gap-3">
                                         <img src="/shopping-cart.svg" className="aspect-auto h-4 lg:h-5" />
                                         <span className="text-sm lg:text-base">Add to Cart</span>
                                     </button>
