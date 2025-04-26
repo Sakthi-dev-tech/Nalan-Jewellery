@@ -21,10 +21,10 @@ export default function Home() {
   ];
 
   const imagesForNewArrivals = [
-    { image: "/images/Sample_Jewel_1.svg", jewelName: "Sample Jewel 1", price: "$1250" },
-    { image: "/images/Sample_Jewel_2.svg", jewelName: "Sample Jewel 2", price: "$2500" },
-    { image: "/images/Sample_Jewel_3.svg", jewelName: "Sample Jewel 3", price: "$3125" },
-    { image: "/images/Sample_Jewel_4.svg", jewelName: "Sample Jewel 4", price: "$5000" },
+    { image: "/images/Sample_Jewel_1.svg", jewelName: "Sample Jewel 1", price: "$1250", id: 1 },
+    { image: "/images/Sample_Jewel_2.svg", jewelName: "Sample Jewel 2", price: "$2500", id: 2 },
+    { image: "/images/Sample_Jewel_3.svg", jewelName: "Sample Jewel 3", price: "$3125", id: 1 },
+    { image: "/images/Sample_Jewel_4.svg", jewelName: "Sample Jewel 4", price: "$5000", id: 2 },
   ];
 
   // To Control the Carousel in the fold
