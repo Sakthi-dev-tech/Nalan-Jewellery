@@ -253,7 +253,7 @@ export default function Product() {
 
                 {!isLoading && (
                     <>
-                        <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
+                        <div className="h-[auto] w-full flex flex-col items-center justify-evenly">
                             <CategoryNavigation />
                         </div>
 

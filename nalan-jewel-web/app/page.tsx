@@ -48,7 +48,7 @@ export default function Home() {
       <Navbar />
       <main className="mt-[8vh]">
         {/* Different type of jewels */}
-        <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
+        <div className="h-[auto] w-full flex flex-col items-center justify-evenly">
           <CategoryNavigation />
         </div>
         {/* The Fold */}

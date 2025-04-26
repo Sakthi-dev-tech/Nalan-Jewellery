@@ -70,7 +70,7 @@ export default function MyOrder() {
         <>
             <Navbar />
             <main className="mt-[8vh] pb-36 flex flex-col items-center select-none">
-                <div className="h-[8vh] w-full flex flex-col items-center justify-evenly">
+                <div className="h-[auto] w-full flex flex-col items-center justify-evenly">
                     <CategoryNavigation />
                 </div>
 

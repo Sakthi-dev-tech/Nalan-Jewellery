@@ -7,11 +7,13 @@ import { SignInSignUpLogic } from '../functions/SignUpSignInLogic';
 import { supabase } from '@/libs/supabase-client';
 import { AuthModal } from './AuthModal';
 import { useAuth } from '../contexts/AuthContext';
+import { jewelleryCatergories, Category } from '../interfaces/TypeOfJewelleryCollectionForHomepage';
 
 export default function Navbar() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeMobileCategory, setActiveMobileCategory] = useState<Category | null>(null);
   const { isLoggedIn, user } = useAuth();
 
   // First add this after your existing useState declarations
@@ -28,6 +30,11 @@ export default function Navbar() {
       setIsDropdownOpen(false);
     }, 100); // 300ms delay before closing
     setDropdownTimeout(timeout);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    setActiveMobileCategory(null);
   };
 
   const [showSignUpModal, setShowSignUpModal] = useState(false);
@@ -190,7 +197,7 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="absolute top-[8vh] left-0 w-full bg-white shadow-lg md:hidden">
+          <div className="absolute top-[8vh] left-0 w-full bg-white shadow-lg md:hidden max-h-[92vh] overflow-y-auto">
             {/* Mobile Search */}
             <div className="p-4">
               <div className="relative">
@@ -205,15 +212,58 @@ export default function Navbar() {
               </div>
             </div>
 
+            <div className="border-t border-gray-100">
+              {jewelleryCatergories.map((category) => (
+                <div key={category.id.toString()} className="border-b border-gray-100">
+                  <button
+                    className="w-full px-4 py-3 flex items-center justify-between"
+                    onClick={() => setActiveMobileCategory(activeMobileCategory?.id === category.id ? null : category)}
+                  >
+                    <span className="text-gray-700 font-medium">
+                      {category.name.toString().toUpperCase()}
+                    </span>
+                    <i className="material-icons">
+                      {activeMobileCategory?.id === category.id ? 'expand_less' : 'expand_more'}
+                    </i>
+                  </button>
+
+                  {/* Subcategories */}
+                  {activeMobileCategory?.id === category.id && (
+                    <div className="bg-gray-50 px-4 py-2">
+                      {Object.entries(category.subCategories).map(([section, items]) => (
+                        <div key={section} className="mb-4">
+                          <h3 className="text-sm font-semibold text-gray-800 mb-2 px-2">
+                            {section.toUpperCase()}
+                          </h3>
+                          <div className="space-y-1">
+                            {items.map((item) => (
+                              <Link
+                                href={item.path.toString()}
+                                key={item.id.toString()}
+                                onClick={closeMobileMenu}
+                                className="block px-2 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded"
+                              >
+                                {item.name.toString()}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
             {/* Mobile Navigation Items */}
-            <div className="px-4 py-2 space-y-2">
+            <div className="px-4 py-2 space-y-2 border-t border-gray-100">
               <Link href="/wishlist">
                 <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
                   <i className="material-icons">favorite</i>
                   <span style={NunitoSans.style}>Wishlist</span>
                 </div>
               </Link>
-              
+
               <Link href="/cart">
                 <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
                   <i className="material-icons">shopping_cart</i>
@@ -261,7 +311,7 @@ export default function Navbar() {
                       <span>My Orders</span>
                     </div>
                   </Link>
-                  
+
                   <button
                     className="w-full p-3 text-red-500 hover:bg-red-50 rounded-lg"
                     onClick={() => new SignInSignUpLogic().SignOutUser()}
