@@ -11,7 +11,8 @@ import { useAuth } from '../contexts/AuthContext';
 export default function Navbar() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const {isLoggedIn, user } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isLoggedIn, user } = useAuth();
 
   // First add this after your existing useState declarations
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -38,18 +39,18 @@ export default function Navbar() {
 
   useEffect(() => {
     // Check if the user is logged in when the component mounts
-      if (!!isLoggedIn) {
-        setShowAgentModal(false);
-        setShowSignInModal(false);
-        setShowSignUpModal(false);
-      }
+    if (!!isLoggedIn) {
+      setShowAgentModal(false);
+      setShowSignInModal(false);
+      setShowSignUpModal(false);
+    }
 
   }, [isLoggedIn]);
-  
+
   return (
     <nav className="fixed top-0 w-full h-[8vh] bg-gradient-to-r from-[#A2DCF3] from-40% to-[#a5a9aa] to-100% select-none z-50">
       <div className="container mx-auto flex h-full items-center">
-        <Link href="/">
+        <Link href="/" className="flex-shrink-0">
           <Image
             src="/images/Logo.svg"
             alt="logo"
@@ -58,12 +59,22 @@ export default function Navbar() {
           />
         </Link>
 
-        <div className="flex w-full items-center justify-between ml-20">
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden ml-auto"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <i className="material-icons">
+            {isMobileMenuOpen ? 'close' : 'menu'}
+          </i>
+        </button>
+
+        <div className="hidden md:flex w-full items-center justify-between ml-20">
           {/* Input with search icon */}
           <div className="relative w-[30vw]">
             <input
               type="text"
-              className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none bg-white" // Add right padding
+              className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none bg-white"
               placeholder="Search for your favourite jewellery..."
             />
             {/* Search icon */}
@@ -175,8 +186,96 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-[8vh] left-0 w-full bg-white shadow-lg md:hidden">
+            {/* Mobile Search */}
+            <div className="p-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  className="w-full h-12 rounded-[2vw] pl-2 pr-10 focus:outline-none bg-gray-100"
+                  placeholder="Search..."
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <i className="material-icons text-gray-500">search</i>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Navigation Items */}
+            <div className="px-4 py-2 space-y-2">
+              <Link href="/wishlist">
+                <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+                  <i className="material-icons">favorite</i>
+                  <span style={NunitoSans.style}>Wishlist</span>
+                </div>
+              </Link>
+              
+              <Link href="/cart">
+                <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+                  <i className="material-icons">shopping_cart</i>
+                  <span style={NunitoSans.style}>Cart</span>
+                </div>
+              </Link>
+
+              {!isLoggedIn ? (
+                <>
+                  <button
+                    className="w-full p-3 mb-2 border-2 border-[#34758f] text-[#34758f] rounded-lg"
+                    onClick={() => setShowSignUpModal(true)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="material-icons">person_add</i>
+                      <span>Sign Up</span>
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full p-3 bg-[#34758f] text-white rounded-lg"
+                    onClick={() => setShowSignInModal(true)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="material-icons">login</i>
+                      <span>Sign In</span>
+                    </div>
+                  </button>
+
+                  <button
+                    className="w-full p-3 text-gray-600 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setShowAgentModal(true)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="material-icons">badge</i>
+                      <span>Sign in as Agent</span>
+                    </div>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/my-orders">
+                    <div className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg">
+                      <i className="material-icons">shopping_bag</i>
+                      <span>My Orders</span>
+                    </div>
+                  </Link>
+                  
+                  <button
+                    className="w-full p-3 text-red-500 hover:bg-red-50 rounded-lg"
+                    onClick={() => new SignInSignUpLogic().SignOutUser()}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="material-icons">logout</i>
+                      <span>Sign Out</span>
+                    </div>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
@@ -184,10 +283,10 @@ export default function Navbar() {
           <AuthModal key="signup" isOpen={showSignUpModal} onClose={() => setShowSignUpModal(false)} type="signup" setShowSignInModal={setShowSignInModal} setShowSignUpModal={setShowSignUpModal} />
         )}
         {showSignInModal && (
-          <AuthModal key="signin" isOpen={showSignInModal} onClose={() => setShowSignInModal(false)} type="signin" setShowSignInModal={setShowSignInModal} setShowSignUpModal={setShowSignUpModal}/>
+          <AuthModal key="signin" isOpen={showSignInModal} onClose={() => setShowSignInModal(false)} type="signin" setShowSignInModal={setShowSignInModal} setShowSignUpModal={setShowSignUpModal} />
         )}
         {showAgentModal && (
-          <AuthModal key="agent" isOpen={showAgentModal} onClose={() => setShowAgentModal(false)} type="agent" setShowSignInModal={setShowSignInModal} setShowSignUpModal={setShowSignUpModal}/>
+          <AuthModal key="agent" isOpen={showAgentModal} onClose={() => setShowAgentModal(false)} type="agent" setShowSignInModal={setShowSignInModal} setShowSignUpModal={setShowSignUpModal} />
         )}
       </AnimatePresence>
 
