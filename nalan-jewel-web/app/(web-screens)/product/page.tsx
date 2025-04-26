@@ -382,7 +382,7 @@ export default function Product() {
                                 onClick={() => setActiveSection('details')}
                                 className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10 cursor-pointer ${activeSection === 'details' ? 'text-white' : ''}`}
                             >
-                                <span className="text-lg lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
+                                <span className="lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
                                     Product Details
                                 </span>
                             </div>
@@ -392,7 +392,7 @@ export default function Product() {
                                 onClick={() => setActiveSection('price')}
                                 className={`w-[50%] h-full rounded-full flex justify-center items-center text-black z-10 cursor-pointer ${activeSection === 'price' ? 'text-white' : ''}`}
                             >
-                                <span className="text-lg lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
+                                <span className="lg:text-xl font-medium font-[family-name:var(--font-geist-sans)]">
                                     Price Breakdown
                                 </span>
                             </div>
@@ -400,7 +400,7 @@ export default function Product() {
 
                         {/* Table Content */}
                         <motion.div
-                            className="mt-8 w-[95%] lg:w-[60%] bg-white rounded-lg shadow-lg p-6"
+                            className="mt-8 sm:w-[100%] lg:w-[60%] bg-white rounded-lg shadow-lg p-6"
                             initial={false}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.3 }}
