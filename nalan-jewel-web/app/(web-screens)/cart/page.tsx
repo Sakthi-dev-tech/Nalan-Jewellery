@@ -37,10 +37,10 @@ export default function Cart() {
     const handleQuantityChange = async (id: number, newQuantity: number) => {
 
         const { data, error } = await supabase
-        .from('Cart')
-        .update({ quantity: newQuantity })
-        .eq('user_id', user?.id)
-        .eq('jewel_id', id)
+            .from('Cart')
+            .update({ quantity: newQuantity })
+            .eq('user_id', user?.id)
+            .eq('jewel_id', id)
 
         if (error) {
             window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Cart')}`;
@@ -143,10 +143,10 @@ export default function Cart() {
 
     const handleModificationEdit = async (item_id: number, new_text: string) => {
         const { data, error } = await supabase
-        .from('Cart')
-        .update({ modifications: new_text })
-        .eq('user_id', user?.id)
-        .eq('jewel_id', item_id)
+            .from('Cart')
+            .update({ modifications: new_text })
+            .eq('user_id', user?.id)
+            .eq('jewel_id', item_id)
 
         if (error) {
             window.location.href = `/error?code=500&message=${encodeURIComponent('Error Updating Modifications')}`;
@@ -179,106 +179,158 @@ export default function Cart() {
                     <CategoryNavigation />
                 </div>
 
-                {isLoading ? (
-                    <LoadingBuffer />
+                {!isLoggedIn ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center space-y-6 p-8 min-h-[60vh] flex flex-col items-center justify-center"
+                    >
+                        <i className="material-icons text-6xl text-gray-300">shopping_cart</i>
+                        <h2 className="text-2xl font-semibold text-gray-800">Please Log In</h2>
+                        <p className="text-gray-600">Log in to view and manage your shopping cart</p>
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => window.location.href = "/"}
+                            className="px-6 py-3 bg-[#34758f] text-white rounded-full hover:bg-[#116c96] transition-colors"
+                        >
+                            Return Home
+                        </motion.button>
+                    </motion.div>
                 ) : (
-                    <div className="w-full max-w-4xl px-4 mt-8">
-                        <h1 className="text-4xl font-[family-name:var(--font-donegal-one)] mb-8">
-                            Shopping Cart
-                        </h1>
+                    <>
+                        {isLoading ? (
+                            <LoadingBuffer />
+                        ) : (
+                            <div className="w-full max-w-4xl px-4 mt-8">
+                                <h1 className="text-4xl font-[family-name:var(--font-donegal-one)] mb-8">
+                                    Shopping Cart
+                                </h1>
 
-                        <div className="space-y-4">
-                            <AnimatePresence mode="popLayout">
-                                {cartItems.map((item, index) => (
-                                    <motion.div
-                                        key={item.id}
-                                        layout
-                                        variants={cartItemVariants}
-                                        initial="hidden"
-                                        animate="visible"
-                                        exit="exit"
-                                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                                        className="flex gap-4 bg-[#F5F9FA] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-                                    >
-                                        <Link href={`/product?product_id=${item.id}`}>
-                                            <motion.img
-                                                whileHover={{ scale: 1.05 }}
-                                                src={item.coverImage}
-                                                alt={item.name}
-                                                className="w-24 h-24 object-cover rounded-md"
-                                            />
-                                        </Link>
-                                        <div className="flex-1 flex justify-between items-start">
-                                            {/* Left side - Name */}
-                                            <div className="flex flex-col gap-2 max-w-[60%]">
-                                                <h3 className="text-lg font-semibold">{item.name}</h3>
-                                                <textarea
-                                                    placeholder="Add any modifications (optional)"
-                                                    value={item.modifications || ''}
-                                                    onChange={(e) => {
+                                <div className="space-y-4">
+                                    <AnimatePresence mode="popLayout">
+                                        {cartItems.map((item, index) => (
+                                            <motion.div
+                                                key={item.id}
+                                                layout
+                                                variants={cartItemVariants}
+                                                initial="hidden"
+                                                animate="visible"
+                                                exit="exit"
+                                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                                className="flex gap-4 bg-[#F5F9FA] p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                                            >
+                                                <Link href={`/product?product_id=${item.id}`}>
+                                                    <motion.img
+                                                        whileHover={{ scale: 1.05 }}
+                                                        src={item.coverImage}
+                                                        alt={item.name}
+                                                        className="w-24 h-24 object-cover rounded-md"
+                                                    />
+                                                </Link>
+                                                <div className="flex-1 flex justify-between items-start">
+                                                    {/* Left side - Name */}
+                                                    <div className="flex flex-col gap-2 max-w-[60%]">
+                                                        <h3 className="text-lg font-semibold">{item.name}</h3>
+                                                        <textarea
+                                                            placeholder="Add any modifications (optional)"
+                                                            value={item.modifications || ''}
+                                                            onChange={(e) => {
 
-                                                        handleModificationEdit(item.id, e.target.value)
+                                                                handleModificationEdit(item.id, e.target.value)
 
-                                                        setCartItems(items =>
-                                                            items.map(cartItem =>
-                                                                cartItem.id === item.id
-                                                                    ? { ...cartItem, modifications: e.target.value }
-                                                                    : cartItem
-                                                            )
-                                                        );                                                     
-                                                    }}
-                                                    className="w-full h-20 px-3 py-2 text-sm text-gray-700 border rounded-md 
+                                                                setCartItems(items =>
+                                                                    items.map(cartItem =>
+                                                                        cartItem.id === item.id
+                                                                            ? { ...cartItem, modifications: e.target.value }
+                                                                            : cartItem
+                                                                    )
+                                                                );
+                                                            }}
+                                                            className="w-full h-20 px-3 py-2 text-sm text-gray-700 border rounded-md 
                       resize-none bg-white focus:outline-none focus:ring-1 
                       focus:ring-[#927B0E] focus:border-[#927B0E]"
-                                                />
-                                            </div>
-
-                                            {/* Right side - Price and Controls */}
-                                            <div className="flex flex-col items-end gap-4">
-                                                <p className="text-lg font-bold text-[#927B0E]">${item.price.toLocaleString()}</p>
-
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center border rounded-lg overflow-hidden bg-white">
-                                                        <motion.button
-                                                            whileTap={{ scale: 0.9 }}
-                                                            onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                                                            className="px-3 py-1 border-r hover:bg-gray-100 transition-colors"
-                                                        >
-                                                            -
-                                                        </motion.button>
-                                                        <input
-                                                            type="number"
-                                                            value={item.quantity}
-                                                            onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
-                                                            className="w-14 text-center py-1 outline-none text-gray-800 bg-transparent [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         />
-                                                        <motion.button
-                                                            whileTap={{ scale: 0.9 }}
-                                                            onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
-                                                            className="px-3 py-1 border-l hover:bg-gray-100 transition-colors"
-                                                        >
-                                                            +
-                                                        </motion.button>
                                                     </div>
-                                                    <motion.button
-                                                        whileHover={{ scale: 1.1 }}
-                                                        whileTap={{ scale: 0.9 }}
-                                                        onClick={() => handleDelete(item)}
-                                                        className="text-red-500 hover:text-red-600 transition-colors"
-                                                    >
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                                                        </svg>
-                                                    </motion.button>
+
+                                                    {/* Right side - Price and Controls */}
+                                                    <div className="flex flex-col items-end gap-4">
+                                                        <p className="text-lg font-bold text-[#927B0E]">${item.price.toLocaleString()}</p>
+
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="flex items-center border rounded-lg overflow-hidden bg-white">
+                                                                <motion.button
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                                                    className="px-3 py-1 border-r hover:bg-gray-100 transition-colors"
+                                                                >
+                                                                    -
+                                                                </motion.button>
+                                                                <input
+                                                                    type="number"
+                                                                    value={item.quantity}
+                                                                    onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 1)}
+                                                                    className="w-14 text-center py-1 outline-none text-gray-800 bg-transparent [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                                />
+                                                                <motion.button
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                                                    className="px-3 py-1 border-l hover:bg-gray-100 transition-colors"
+                                                                >
+                                                                    +
+                                                                </motion.button>
+                                                            </div>
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                onClick={() => handleDelete(item)}
+                                                                className="text-red-500 hover:text-red-600 transition-colors"
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </motion.button>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                    </div>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Fixed Bottom Bar */}
+                                <motion.div
+                                    variants={bottomBarVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    transition={{ duration: 0.5, type: "spring" }}
+                                    className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40"
+                                >
+                                    <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                        >
+                                            <p className="text-sm text-gray-600">Total Amount</p>
+                                            <p className="text-2xl font-bold">${totalPrice.toLocaleString()}</p>
+                                        </motion.div>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="bg-[#927B0E] text-white px-8 py-3 rounded-full hover:bg-[#7d690c] transition-colors"
+                                        >
+                                            Proceed to Buy
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            </div>
+
+
+                        )}
+                    </>
                 )}
+
 
                 {/* Delete Confirmation Modal */}
                 <AnimatePresence>
@@ -318,32 +370,7 @@ export default function Cart() {
                     )}
                 </AnimatePresence>
 
-                {/* Fixed Bottom Bar */}
-                <motion.div
-                    variants={bottomBarVariants}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ duration: 0.5, type: "spring" }}
-                    className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40"
-                >
-                    <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <p className="text-sm text-gray-600">Total Amount</p>
-                            <p className="text-2xl font-bold">${totalPrice.toLocaleString()}</p>
-                        </motion.div>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="bg-[#927B0E] text-white px-8 py-3 rounded-full hover:bg-[#7d690c] transition-colors"
-                        >
-                            Proceed to Buy
-                        </motion.button>
-                    </div>
-                </motion.div>
+
 
             </main>
         </>
