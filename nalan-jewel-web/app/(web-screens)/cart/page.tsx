@@ -197,6 +197,27 @@ export default function Cart() {
                             Return Home
                         </motion.button>
                     </motion.div>
+                ) : cartItems.length === 0 ? (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center space-y-6 p-8"
+                    >
+                        <i className="material-icons text-6xl text-gray-300">shopping_cart</i>
+                        <h2 className="text-2xl font-semibold text-gray-800">Your Cart is Empty</h2>
+                        <p className="text-gray-600">Browse our collection and add items to your cart</p>
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Link
+                                href="/products-list"
+                                className="inline-block px-6 py-3 bg-[#34758f] text-white rounded-full hover:bg-[#116c96] transition-colors"
+                            >
+                                Explore Products
+                            </Link>
+                        </motion.div>
+                    </motion.div>
                 ) : (
                     <>
                         {isLoading ? (
