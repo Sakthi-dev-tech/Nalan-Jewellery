@@ -112,13 +112,6 @@ export default function Wishlist() {
 
                 <LayoutGroup>
                     <div className="w-full min-h-[60vh] flex flex-col items-center gap-8 mt-10">
-                        <motion.h1
-                            layout
-                            className="lg:text-5xl sm:text-4xl font-[family-name:var(--font-donegal-one)]"
-                        >
-                            Your Wishlist
-                        </motion.h1>
-
                         {!isLoggedIn ? (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
