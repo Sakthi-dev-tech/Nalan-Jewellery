@@ -29,7 +29,7 @@ export default function Home() {
 
   // To Control the Carousel in the fold
   const swiperRefForFold = useRef<SwiperType | null>(null);
-  
+
 
   const handlePrevClick = () => {
     if (swiperRefForFold.current) {
@@ -52,37 +52,42 @@ export default function Home() {
           <CategoryNavigation />
         </div>
         {/* The Fold */}
-        <div className="h-[84vh] w-auto overflow-auto relative">
+        <div className="w-full relative">
           <Swiper
             loop
             modules={[Autoplay]}
             autoplay={{ delay: 5000, disableOnInteraction: false }}
             onSwiper={(swiper) => (swiperRefForFold.current = swiper)}
-            className="w-full h-full"
+            className="w-full"
           >
-            <div className="flex items-center justify-center h-full w-full">
-              {imagesForFold.map((image, index) => (
-                <SwiperSlide key={index}>
-                  <img src={image} alt="" className="w-full h-full object-cover" />
-                </SwiperSlide>
-              ))}
-            </div>
+            {imagesForFold.map((image, index) => (
+              <SwiperSlide key={index} className="w-full">
+                <div className="relative w-full">
+                  <img
+                    src={image}
+                    alt=""
+                    className="w-full h-auto object-contain"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                </div>
+              </SwiperSlide>
+            ))}
           </Swiper>
 
           {/* Custom Arrows For The Fold */}
           <button
             onClick={handlePrevClick}
-            className="absolute top-1/2 transform -translate-y-1/2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-80 w-12 h-12 flex items-center justify-center z-10 left-5"
+            className="hidden md:flex absolute top-1/2 transform -translate-y-1/2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-80 w-8 md:w-12 h-8 md:h-12 items-center justify-center z-10 left-2 md:left-5 transition-all"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
               <polyline points="15 18 9 12 15 6"></polyline>
             </svg>
           </button>
           <button
             onClick={handleNextClick}
-            className="absolute top-1/2 transform -translate-y-1/2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-80 w-12 h-12 flex items-center justify-center z-10 right-5"
+            className="hidden md:flex absolute top-1/2 transform -translate-y-1/2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-80 w-8 md:w-12 h-8 md:h-12 items-center justify-center z-10 right-2 md:right-5 transition-all"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
               <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
           </button>
@@ -90,8 +95,13 @@ export default function Home() {
 
         {/* New Arrivals Section */}
 
-        <div className="h-auto w-full flex flex-col items-center justify-center mt-10 select-none p-20">
-          <Text style={Parisienne.style} className="text-5xl">New Arrivals</Text>
+        <div className="h-auto w-full flex flex-col items-center justify-center mt-6 md:mt-10 select-none px-4 md:px-20 py-8 md:py-20">
+          <Text
+            style={Parisienne.style}
+            className="text-3xl md:text-5xl mb-6 md:mb-10"
+          >
+            New Arrivals
+          </Text>
           <CarouselForJewels dataArray={imagesForNewArrivals} />
         </div>
       </main>

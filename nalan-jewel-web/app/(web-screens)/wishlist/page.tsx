@@ -114,7 +114,7 @@ export default function Wishlist() {
                     <div className="w-full min-h-[60vh] flex flex-col items-center gap-8 mt-10">
                         <motion.h1
                             layout
-                            className="text-5xl font-[family-name:var(--font-donegal-one)]"
+                            className="lg:text-5xl sm:text-4xl font-[family-name:var(--font-donegal-one)]"
                         >
                             Your Wishlist
                         </motion.h1>

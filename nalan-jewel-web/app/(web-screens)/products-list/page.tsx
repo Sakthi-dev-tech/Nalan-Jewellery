@@ -56,7 +56,7 @@ export default function ProductsList() {
         type: [],
         community: []
     });
-    const [isFilterOpen, setIsFilterOpen] = useState(true);
+    const [isFilterOpen, setIsFilterOpen] = useState(window.innerWidth >= 768);
     const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
     const activeFiltersCount = Object.values(filters).reduce(
@@ -117,6 +117,15 @@ export default function ProductsList() {
             setIsLoading(false);
         }
 
+    }, []);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsFilterOpen(window.innerWidth >= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     return (
@@ -202,13 +211,14 @@ export default function ProductsList() {
 
                             {/* Filter Sidebar */}
                             <motion.aside
-                                initial={false}
+                                initial={{ width: window.innerWidth >= 768 ? 'auto' : 0, opacity: window.innerWidth >= 768 ? 1 : 0 }}
                                 animate={{
                                     width: isFilterOpen ? 'auto' : 0,
                                     opacity: isFilterOpen ? 1 : 0
                                 }}
-                                className={`${isFilterOpen ? 'w-full md:w-72' : 'w-0'
-                                    } flex-shrink-0 fixed md:sticky left-0 top-[16vh] h-[calc(100vh-16vh)] md:h-[calc(100vh-16vh)] bg-white z-40 md:z-0 overflow-hidden`}
+                                className={`${isFilterOpen ? 'w-full md:w-72' : 'w-0'} 
+        flex-shrink-0 fixed md:sticky left-0 top-[16vh] h-[calc(100vh-16vh)] 
+        md:h-[calc(100vh-16vh)] bg-white z-40 md:z-0 overflow-hidden`}
                             >
                                 <div className="p-6 h-full overflow-y-auto scrollbar-hide">
                                     {Object.entries(filterCategories).map(([category, options]) => (
